@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz History - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f9fafc;
+            color: #1f2937;
+        }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .logo i { font-size: 2rem; }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+        .page-header p {
+            color: #666;
+        }
+
+        /* ----- Linear card table (like teacher's manage quizzes) ----- */
+        .history-table {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .table-header {
+            background: #f3f4f6;
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 3fr 2fr 1fr 80px;
+            gap: 1rem;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .table-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 3fr 2fr 1fr 80px;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s;
+        }
+        .table-row:hover {
+            background: #f9fafb;
+        }
+        .quiz-title {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .quiz-meta {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        .score-badge {
+            background: #eef2ff;
+            color: #4f46e5;
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            display: inline-block;
+        }
+        .btn-review {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #4f46e5;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0.3rem;
+            border-radius: 50%;
+        }
+        .btn-review:hover {
+            background: #eef2ff;
+            color: #6366f1;
+        }
+        .empty-message {
+            text-align: center;
+            color: #9ca3af;
+            padding: 3rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .empty-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .table-header { display: none; }
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-brain"></i><span>SmartQuiz</span></div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="available-quizzes.html"><i class="fas fa-question-circle"></i> Available Quizzes</a></li>
+                <li><a href="history.html" class="active"><i class="fas fa-history"></i> History</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- Static icon will be replaced by script -->
+                <div class="profile-icon" id="profileInitials"></div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                    <hr>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Your Quiz History</h1>
+            <p>Review your past attempts.</p>
+        </div>
+
+        <div class="history-table">
+            <div class="table-header">
+                <div>Quiz Title</div>
+                <div>Date</div>
+                <div>Score</div>
+                <div>Review</div>
+            </div>
+            <div id="historyRows"></div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadStudentProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('studentProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Student' };
+
+        // Restore photo from persistent store if missing
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadStudentProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update navbar initials and name (temporary, will be replaced by image)
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('profileName').textContent = currentUser.name;
+
+        // Helper to get student photo source (prefer custom data URL, then photos folder .jpeg)
+        function getStudentPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.jpeg`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getStudentPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Student';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // Call it immediately
+        updateNavbarIcon();
+
+        // ---------- ORIGINAL HISTORY CODE (unchanged) ----------
+        function loadHistory() {
+            const attempts = JSON.parse(localStorage.getItem('student_attempts')) || [];
+            const container = document.getElementById('historyRows');
+            if (attempts.length === 0) {
+                container.innerHTML = '<div class="empty-message"><i class="fas fa-history"></i><p>No quizzes taken yet. Start taking quizzes to see your history!</p></div>';
+                return;
+            }
+            // Sort by most recent
+            attempts.sort((a,b) => new Date(b.date) - new Date(a.date));
+            container.innerHTML = attempts.map(attempt => {
+                const date = new Date(attempt.date).toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+                return `
+                    <div class="table-row">
+                        <div class="quiz-title">${attempt.quizTitle}</div>
+                        <div class="quiz-meta"><i class="fas fa-calendar-alt" style="margin-right:0.3rem;"></i>${date}</div>
+                        <div><span class="score-badge">${Math.round(attempt.score)}%</span></div>
+                        <div><button class="btn-review" onclick="reviewAttempt(${attempt.id})" title="Review"><i class="fas fa-eye"></i></button></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.reviewAttempt = function(attemptId) {
+            window.location.href = `review.html?id=${attemptId}`;
+        };
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+
+        loadHistory();
+    </script>
+</body>
+</html>

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ----- ALL YOUR EXISTING STYLES (unchanged) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .filter-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .time-btn {
+            padding: 0.6rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .time-btn:hover,
+        .time-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 50px;
+            padding: 0.5rem 1rem;
+            min-width: 250px;
+            max-width: 300px;
+            flex: 1;
+        }
+
+        .search-box i {
+            color: #9ca3af;
+            margin-right: 0.5rem;
+        }
+
+        .search-box input {
+            border: none;
+            background: transparent;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            width: 100%;
+        }
+
+        .podium {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .podium-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .podium-item.first {
+            transform: scale(1.1);
+        }
+
+        .podium-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
+            position: relative;
+        }
+
+        img.podium-avatar {
+            display: block;
+            background: none;
+            object-fit: cover;
+        }
+
+        .first .podium-avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            box-shadow: 0 10px 30px rgba(245, 158, 11, 0.3);
+        }
+
+        .second .podium-avatar {
+            background: linear-gradient(135deg, #e5e7eb, #9ca3af);
+            box-shadow: 0 10px 30px rgba(156, 163, 175, 0.3);
+        }
+
+        .third .podium-avatar {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            box-shadow: 0 10px 30px rgba(180, 83, 9, 0.3);
+        }
+
+        .crown {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: #fbbf24;
+        }
+
+        .podium-info h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .podium-info .score {
+            color: #4f46e5;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .podium-info .quizzes {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .leaderboard-table {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 100px 1fr 150px 150px 150px;
+            padding: 1rem 2rem;
+            background: #f9fafb;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-body {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 100px 1fr 150px 150px 150px;
+            padding: 1rem 2rem;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .table-row.current-user {
+            background: #eef2ff;
+            border-left: 4px solid #4f46e5;
+        }
+
+        .rank-cell {
+            font-weight: 700;
+        }
+
+        .rank-cell.top-1 { color: #fbbf24; }
+        .rank-cell.top-2 { color: #9ca3af; }
+        .rank-cell.top-3 { color: #d97706; }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        img.user-avatar {
+            display: block;
+            background: none;
+            object-fit: cover;
+        }
+
+        .user-info h4 {
+            font-size: 1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .score-cell {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .quizzes-cell {
+            color: #666;
+        }
+
+        .accuracy-cell {
+            font-weight: 600;
+        }
+
+        .accuracy-cell.high {
+            color: #16a34a;
+        }
+
+        .accuracy-cell.medium {
+            color: #ca8a04;
+        }
+
+        .accuracy-cell.low {
+            color: #dc2626;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: #9ca3af;
+            font-style: italic;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            color: #4f46e5;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .podium {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .table-header {
+                display: none;
+            }
+            
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+                padding: 1rem;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="available-quizzes.html"><i class="fas fa-question-circle"></i> Available Quizzes</a></li>
+                <li><a href="leaderboard.html" class="active"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- Static icon will be replaced by script -->
+                <div class="profile-icon" id="profileInitials">JS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                    <hr>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Leaderboard</h1>
+            <p>Top performers based on quiz scores and accuracy</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="time-filter">
+                <button class="time-btn active" data-period="week">This Week</button>
+                <button class="time-btn" data-period="month">This Month</button>
+                <button class="time-btn" data-period="all">All Time</button>
+            </div>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by name...">
+            </div>
+        </div>
+
+        <!-- Podium -->
+        <div class="podium" id="podiumContainer">
+            <!-- Dynamically filled -->
+        </div>
+
+        <!-- Leaderboard Table -->
+        <div class="leaderboard-table">
+            <div class="table-header">
+                <div>Rank</div>
+                <div>Student</div>
+                <div>Score</div>
+                <div>Quizzes Taken</div>
+                <div>Accuracy</div>
+            </div>
+            <div class="table-body" id="leaderboardBody">
+                <div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <!-- Dynamically filled -->
+        </div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadTeacherProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'John Student', email: 'student@demo.com' };
+
+        // Restore photo from persistent store if missing (teacher view)
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadTeacherProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update profile initials and name (temporary, will be replaced by image)
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('profileName').textContent = currentUser.name;
+
+        // Helper to get teacher photo source (PNG)
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getTeacherPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // Call it immediately
+        updateNavbarIcon();
+
+        // ------------------------------------------------------------------
+        // CORRECTED PATH TO PHOTOS FOLDER (based on your file structure)
+        // ------------------------------------------------------------------
+        const basePath = '/photos/';   // <--- This is the key fix
+
+        function getUserImageUrl(user) {
+            if (user.image) {
+                return basePath + user.image;
+            }
+            // Fallback to student name + .jpg (if no custom image field)
+            return basePath + encodeURIComponent(user.name) + '.jpg';
+        }
+
+        // ------------------------------------------------------------------
+        // Leaderboard data – with custom 'image' field (matching your filenames)
+        // ------------------------------------------------------------------
+        const leaderboardData = {
+            week: [
+                { id: 2, name: 'Lakshmi Majji', image: 'Lakshmi Majji.jpeg', initials: 'LM', grade: '10th • Science', score: 2850, quizzes: 15, accuracy: 92 },
+                { id: 3, name: 'Neha Reddy', image: 'Neha Reddy.jpeg', initials: 'NR', grade: '11th • Mathematics', score: 2450, quizzes: 12, accuracy: 88 },
+                { id: 4, name: 'Akhil', image: 'Akhil.jpeg', initials: 'AK', grade: '10th • History', score: 2310, quizzes: 11, accuracy: 85 },
+                { id: 5, name: 'Naveen Kumar', image: 'Naveen Kumar.jpeg', initials: 'NK', grade: '9th • Geography', score: 2180, quizzes: 10, accuracy: 82 },
+                { id: 6, name: 'Rohith', image: 'Rohith.jpeg', initials: 'RO', grade: '11th • Physics', score: 2050, quizzes: 9, accuracy: 79 },
+                { id: 7, name: 'Sivani Mariyala', image: 'Sivani Mariyala.jpeg', initials: 'SM', grade: '10th • Literature', score: 1980, quizzes: 8, accuracy: 72 },
+                { id: 8, name: 'Sriram', image: 'Sriram.jpeg', initials: 'SR', grade: '12th • Chemistry', score: 1890, quizzes: 7, accuracy: 68 },
+                { id: 9, name: 'Uday', image: 'Uday.jpeg', initials: 'UD', grade: '9th • Biology', score: 1750, quizzes: 6, accuracy: 65 },
+                { id: 10, name: 'Soudamini', image: 'Soudamini.jpeg', initials: 'SO', grade: '10th • Art', score: 1620, quizzes: 5, accuracy: 62 },
+                { id: 11, name: 'Sadvika Pabolu', image: 'Sadvika Pabolu.jpeg', initials: 'SP', grade: '11th • Music', score: 1500, quizzes: 4, accuracy: 58 },
+                { id: 1, name: 'Veni Sri', image: 'Veni Sri.jpeg', initials: 'VS', grade: '10th • General', score: 2180, quizzes: 8, accuracy: 78 }
+            ],
+            month: [
+                { id: 2, name: 'Sadvika Pabolu', image: 'Sadvika Pabolu.jpeg', initials: 'SP', grade: '10th • Science', score: 8250, quizzes: 42, accuracy: 91 },
+                { id: 3, name: 'Sivani Mariyala', image: 'Sivani Mariyala.jpeg', initials: 'SM', grade: '11th • Mathematics', score: 7900, quizzes: 38, accuracy: 89 },
+                { id: 4, name: 'Akhil', image: 'Akhil.jpeg', initials: 'AK', grade: '10th • History', score: 7450, quizzes: 35, accuracy: 87 },
+                { id: 5, name: 'Rohith', image: 'Rohith.jpeg', initials: 'RO', grade: '9th • Geography', score: 7100, quizzes: 33, accuracy: 85 },
+                { id: 6, name: 'Neha Reddy', image: 'Neha Reddy.jpeg', initials: 'NR', grade: '11th • Physics', score: 6800, quizzes: 30, accuracy: 82 },
+                { id: 7, name: 'Naveen Kumar', image: 'Naveen Kumar.jpeg', initials: 'NK', grade: '10th • Literature', score: 6450, quizzes: 28, accuracy: 80 },
+                { id: 8, name: 'Sriram', image: 'Sriram.jpeg', initials: 'SR', grade: '12th • Chemistry', score: 6100, quizzes: 25, accuracy: 77 },
+                { id: 9, name: 'Uday', image: 'Uday.jpeg', initials: 'UD', grade: '9th • Biology', score: 5800, quizzes: 23, accuracy: 74 },
+                { id: 10, name: 'Veni Sri', image: 'Veni Sri.jpeg', initials: 'VS', grade: '10th • Art', score: 5400, quizzes: 20, accuracy: 71 },
+                { id: 11, name: 'Lakshmi Majji', image: 'Lakshmi Majji.jpeg', initials: 'LM', grade: '11th • Music', score: 5100, quizzes: 18, accuracy: 68 },
+                { id: 1, name: 'Soudamini', image: 'Soudamini.jpeg', initials: 'SO', grade: '10th • General', score: 6800, quizzes: 30, accuracy: 78 }
+            ],
+            all: [
+                { id: 2, name: 'Lakshmi Majji', image: 'Lakshmi Majji.jpeg', initials: 'LM', grade: '10th • Science', score: 24500, quizzes: 120, accuracy: 93 },
+                { id: 3, name: 'Neha Reddy', image: 'Neha Reddy.jpeg', initials: 'NR', grade: '11th • Mathematics', score: 23800, quizzes: 115, accuracy: 91 },
+                { id: 4, name: 'Sadvika Pabolu', image: 'Sadvika Pabolu.jpeg', initials: 'SP', grade: '10th • History', score: 22100, quizzes: 108, accuracy: 89 },
+                { id: 5, name: 'Sivani Mariyala', image: 'Sivani Mariyala.jpeg', initials: 'SM', grade: '9th • Geography', score: 21500, quizzes: 102, accuracy: 87 },
+                { id: 6, name: 'Rohith', image: 'Rohith.jpeg', initials: 'RO', grade: '11th • Physics', score: 20900, quizzes: 98, accuracy: 85 },
+                { id: 7, name: 'Akhil', image: 'Akhil.jpeg', initials: 'AK', grade: '10th • Literature', score: 20100, quizzes: 92, accuracy: 83 },
+                { id: 8, name: 'Sriram', image: 'Sriram.jpeg', initials: 'SR', grade: '12th • Chemistry', score: 19500, quizzes: 88, accuracy: 81 },
+                { id: 9, name: 'Uday', image: 'Uday.jpeg', initials: 'UD', grade: '9th • Biology', score: 18800, quizzes: 82, accuracy: 79 },
+                { id: 10, name: 'Soudamini', image: 'Soudamini.jpeg', initials: 'SO', grade: '10th • Art', score: 18200, quizzes: 78, accuracy: 77 },
+                { id: 11, name: 'Naveen Kumar', image: 'Naveen Kumar.jpeg', initials: 'NK', grade: '11th • Music', score: 17500, quizzes: 72, accuracy: 75 },
+                { id: 1, name: 'Veni Sri', image: 'Veni Sri.jpeg', initials: 'VS', grade: '10th • General', score: 19800, quizzes: 85, accuracy: 82 }
+            ]
+        };
+
+        let currentPeriod = 'week';
+        let currentPage = 1;
+        const rowsPerPage = 10;
+        let filteredData = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLeaderboard('week');
+            attachEventListeners();
+        });
+
+        function attachEventListeners() {
+            document.querySelectorAll('.time-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const period = this.dataset.period;
+                    currentPeriod = period;
+                    currentPage = 1;
+                    renderLeaderboard(period);
+                });
+            });
+
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterData(searchTerm);
+            });
+        }
+
+        function renderLeaderboard(period) {
+            const data = leaderboardData[period] || [];
+            data.sort((a, b) => b.score - a.score);
+            window.fullData = data;
+            updatePodium(data.slice(0, 3));
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            filterData(searchTerm);
+        }
+
+        function filterData(searchTerm) {
+            if (!window.fullData) return;
+            if (!searchTerm) {
+                filteredData = [...window.fullData];
+            } else {
+                filteredData = window.fullData.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm)
+                );
+            }
+            updateTableAndPagination();
+        }
+
+        function updateTableAndPagination() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedData = filteredData.slice(start, end);
+            renderTable(paginatedData);
+            renderPagination();
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('leaderboardBody');
+            if (data.length === 0) {
+                tbody.innerHTML = '<div class="no-results"><i class="fas fa-search"></i> No matching students found.</div>';
+                return;
+            }
+
+            let html = '';
+            data.forEach((user, index) => {
+                const globalRank = filteredData.indexOf(user) + 1;
+                const rankClass = globalRank === 1 ? 'top-1' : globalRank === 2 ? 'top-2' : globalRank === 3 ? 'top-3' : '';
+                
+                let accuracyClass = 'low';
+                if (user.accuracy >= 90) accuracyClass = 'high';
+                else if (user.accuracy >= 75) accuracyClass = 'medium';
+                
+                const isCurrentUser = user.name === currentUser.name;
+
+                html += `
+                    <div class="table-row ${isCurrentUser ? 'current-user' : ''}">
+                        <div class="rank-cell ${rankClass}">${globalRank}</div>
+                        <div class="user-cell">
+                            <img class="user-avatar" src="${getUserImageUrl(user)}" alt="${user.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                            <div class="user-avatar" style="display:none;">${user.initials}</div>
+                            <div class="user-info">
+                                <h4>${user.name}</h4>
+                                <p>${user.grade}</p>
+                            </div>
+                        </div>
+                        <div class="score-cell">${user.score.toLocaleString()}</div>
+                        <div class="quizzes-cell">${user.quizzes}</div>
+                        <div class="accuracy-cell ${accuracyClass}">${user.accuracy}%</div>
+                    </div>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        function updatePodium(topThree) {
+            const podiumContainer = document.getElementById('podiumContainer');
+            if (topThree.length < 3) {
+                podiumContainer.innerHTML = '<p style="text-align:center;">Not enough participants</p>';
+                return;
+            }
+
+            const podiumHtml = `
+                <!-- Second Place -->
+                <div class="podium-item second">
+                    <div class="crown">🥈</div>
+                    <img class="podium-avatar" src="${getUserImageUrl(topThree[1])}" alt="${topThree[1].name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="podium-avatar" style="display:none;">${topThree[1].initials}</div>
+                    <div class="podium-info">
+                        <h3>${topThree[1].name}</h3>
+                        <div class="score">${topThree[1].score.toLocaleString()} pts</div>
+                        <div class="quizzes">${topThree[1].quizzes} quizzes</div>
+                    </div>
+                </div>
+                <!-- First Place -->
+                <div class="podium-item first">
+                    <div class="crown">👑</div>
+                    <img class="podium-avatar" src="${getUserImageUrl(topThree[0])}" alt="${topThree[0].name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="podium-avatar" style="display:none;">${topThree[0].initials}</div>
+                    <div class="podium-info">
+                        <h3>${topThree[0].name}</h3>
+                        <div class="score">${topThree[0].score.toLocaleString()} pts</div>
+                        <div class="quizzes">${topThree[0].quizzes} quizzes</div>
+                    </div>
+                </div>
+                <!-- Third Place -->
+                <div class="podium-item third">
+                    <div class="crown">🥉</div>
+                    <img class="podium-avatar" src="${getUserImageUrl(topThree[2])}" alt="${topThree[2].name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="podium-avatar" style="display:none;">${topThree[2].initials}</div>
+                    <div class="podium-info">
+                        <h3>${topThree[2].name}</h3>
+                        <div class="score">${topThree[2].score.toLocaleString()} pts</div>
+                        <div class="quizzes">${topThree[2].quizzes} quizzes</div>
+                    </div>
+                </div>
+            `;
+            podiumContainer.innerHTML = podiumHtml;
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+            const paginationDiv = document.getElementById('pagination');
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+
+            let paginationHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                paginationHtml += `<button class="page-btn ${i === currentPage ? 'active' : ''}" data-page="${i}">${i}</button>`;
+            }
+            if (currentPage < totalPages) {
+                paginationHtml += `<button class="page-btn" data-page="${currentPage + 1}">→</button>`;
+            }
+            paginationDiv.innerHTML = paginationHtml;
+
+            document.querySelectorAll('.page-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const page = parseInt(this.dataset.page);
+                    if (!isNaN(page)) {
+                        currentPage = page;
+                        updateTableAndPagination();
+                    }
+                });
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body> 
+</html>

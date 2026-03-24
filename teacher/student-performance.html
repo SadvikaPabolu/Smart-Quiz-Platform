@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Performance - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ----- ALL YOUR EXISTING STYLES (unchanged) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-card.blue {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+        }
+
+        .stat-card.green {
+            background: linear-gradient(135deg, #10b981, #34d399);
+            color: white;
+        }
+
+        .stat-card.purple {
+            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+            color: white;
+        }
+
+        .stat-card.orange {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h3 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 250px;
+        }
+
+        .student-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-top: 2rem;
+        }
+
+        .table-header {
+            background: #f3f4f6;
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr;
+            gap: 1rem;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.5fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .student-name {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* New rule for image avatars */
+        img.student-avatar {
+            display: block;
+            background: none;
+            object-fit: cover;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4f46e5;
+            border-radius: 4px;
+        }
+
+        .btn-view {
+            padding: 0.5rem 1rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: background 0.3s;
+        }
+
+        .btn-view:hover {
+            background: #6366f1;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            .table-header {
+                display: none;
+            }
+            .table-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="create-quiz.html"><i class="fas fa-plus-circle"></i> Create Quiz</a></li>
+                <li><a href="manage-quiz.html"><i class="fas fa-edit"></i> Manage Quizzes</a></li>
+                <li><a href="student-performance.html" class="active"><i class="fas fa-chart-bar"></i> Performance</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- Static icon will be replaced by script -->
+                <div class="profile-icon" id="profileInitials">PS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Student Performance</h1>
+            <p>Track individual student progress and class averages</p>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="stats-grid">
+            <div class="stat-card blue">
+                <div class="stat-value">156</div>
+                <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-card green">
+                <div class="stat-value">82%</div>
+                <div class="stat-label">Class Average</div>
+            </div>
+            <div class="stat-card purple">
+                <div class="stat-value">1,234</div>
+                <div class="stat-label">Quizzes Taken</div>
+            </div>
+            <div class="stat-card orange">
+                <div class="stat-value">78%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line" style="color: #4f46e5;"></i> Weekly Performance Trend</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-pie" style="color: #4f46e5;"></i> Performance by Topic</h3>
+                </div>
+                <div class="chart-container">
+                    <canvas id="topicChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student List -->
+        <h2 style="margin: 2rem 0 1rem; font-size: 1.5rem;">Student Performance Details</h2>
+        <div class="student-table">
+            <div class="table-header">
+                <div>Student</div>
+                <div>Quizzes Taken</div>
+                <div>Avg. Score</div>
+                <div>Progress</div>
+                <div>Action</div>
+            </div>
+
+            <!-- Lakshmi Majji -->
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Lakshmi Majji.jpeg" alt="Lakshmi Majji" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">LM</div>
+                    <span>Lakshmi Majji</span>
+                </div>
+                <div>15</div>
+                <div>92%</div>
+                <div><div class="progress-bar"><div class="progress-fill" style="width: 92%"></div></div></div>
+                <div><button class="btn-view" onclick="viewStudent('lakshmi')">View</button></div>
+            </div>
+            <!-- Neha Reddy -->
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Neha Reddy.jpeg" alt="Neha Reddy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">NR</div>
+                    <span>Neha Reddy</span>
+                </div>
+                <div>12</div>
+                <div>88%</div>
+                <div><div class="progress-bar"><div class="progress-fill" style="width: 88%"></div></div></div>
+                <div><button class="btn-view" onclick="viewStudent('neha')">View</button></div>
+            </div>
+            <!-- Akhil -->
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Akhil.jpeg" alt="Akhil" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">AK</div>
+                    <span>Akhil</span>
+                </div>
+                <div>11</div>
+                <div>85%</div>
+                <div><div class="progress-bar"><div class="progress-fill" style="width: 85%"></div></div></div>
+                <div><button class="btn-view" onclick="viewStudent('akhil')">View</button></div>
+            </div>
+            <!-- Naveen Kumar -->
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Naveen Kumar.jpeg" alt="Naveen Kumar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">NK</div>
+                    <span>Naveen Kumar</span>
+                </div>
+                <div>10</div>
+                <div>82%</div>
+                <div><div class="progress-bar"><div class="progress-fill" style="width: 82%"></div></div></div>
+                <div><button class="btn-view" onclick="viewStudent('naveen')">View</button></div>
+            </div>
+            <!-- Veni Sri -->
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Veni Sri.jpeg" alt="Veni Sri" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">VS</div>
+                    <span>Veni Sri</span>
+                </div>
+                <div>9</div>
+                <div>79%</div>
+                <div><div class="progress-bar"><div class="progress-fill" style="width: 79%"></div></div></div>
+                <div><button class="btn-view" onclick="viewStudent('veni')">View</button></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadTeacherProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Prof. Smith' };
+
+        // Restore photo from persistent store if missing
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadTeacherProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update profile initials (temporary, will be replaced by image)
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        // Helper to get teacher photo source (PNG)
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getTeacherPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // Call it immediately
+        updateNavbarIcon();
+
+        // Weekly Trend Chart
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                datasets: [{
+                    label: 'Class Average',
+                    data: [72, 78, 85, 82, 88],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // Topic Performance Chart (Doughnut)
+        const topicCtx = document.getElementById('topicChart').getContext('2d');
+        new Chart(topicCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Math', 'Science', 'History', 'Geography'],
+                datasets: [{
+                    data: [85, 78, 92, 88],
+                    backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+
+        // Redirect to student-details.html with the student ID
+        function viewStudent(studentId) {
+            // Store selection to avoid losing context if query string is dropped
+            localStorage.setItem('selectedStudentId', String(studentId));
+            window.location.href = `student-details.html?id=${encodeURIComponent(studentId)}`;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>
+

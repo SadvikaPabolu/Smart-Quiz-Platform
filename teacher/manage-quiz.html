@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Quizzes (Quick) - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            width: 100%;
+        }
+
+        .quiz-table {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .quiz-row {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: grid;
+            grid-template-columns: 2.2fr 1.3fr 0.9fr 1fr 1.4fr;
+            gap: 0.8rem;
+            align-items: center;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            will-change: transform;
+        }
+
+        .quiz-row.header {
+            background: #f3f4f6;
+            box-shadow: none;
+            font-weight: 600;
+            color: #374151;
+            border: 1px solid #e5e7eb;
+        }
+
+        .quiz-row:not(.header):hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+            background: #ffffff;
+        }
+
+        .quiz-cell {
+            font-size: 0.95rem;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            min-width: 0;
+        }
+
+        .quiz-title {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .quiz-actions {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: flex-end;
+        }
+
+        .action-icon {
+            cursor: pointer;
+            font-size: 1.25rem;
+            background: none;
+            border: none;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-review {
+            color: #10b981;
+        }
+
+        .action-review:hover {
+            color: #059669;
+            transform: scale(1.2);
+        }
+
+        .action-edit {
+            color: #4f46e5;
+        }
+
+        .action-edit:hover {
+            color: #6366f1;
+            transform: scale(1.2);
+        }
+
+        .action-delete {
+            color: #ef4444;
+        }
+
+        .action-delete:hover {
+            color: #dc2626;
+            transform: scale(1.2);
+        }
+
+        .icon-btn:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+            background: #f8f9ff;
+        }
+
+        .icon-btn.delete {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .icon-btn.delete:hover {
+            background: #fee2e2;
+        }
+
+        .empty-state {
+            background: white;
+            border-radius: 14px;
+            padding: 2.5rem;
+            text-align: center;
+            color: #9ca3af;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .quiz-row {
+                grid-template-columns: 1fr;
+                align-items: flex-start;
+            }
+
+            .quiz-actions {
+                width: 100%;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="create-quiz.html"><i class="fas fa-plus-circle"></i> Create Quiz</a></li>
+                <li><a href="manage-quiz.html" class="active"><i class="fas fa-edit"></i> Manage Quizzes</a></li>
+                <li><a href="student-performance.html"><i class="fas fa-chart-bar"></i> Performance</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <div class="profile-icon" id="profileInitials">PS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Manage Quizzes</h1>
+        </div>
+
+        <div class="quiz-table" id="quickList"></div>
+    </div>
+
+    <script>
+        function loadTeacherProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Prof. Smith' };
+
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadTeacherProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getTeacherPhotoSrc();
+
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials';
+            fallback.textContent = initials;
+            fallback.style.display = 'none';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        updateNavbarIcon();
+
+        const defaultQuizzes = [
+            {
+                id: 1,
+                title: 'Basic Algebra',
+                category: 'Mathematics',
+                difficulty: 'Easy',
+                description: 'Test your basic algebra skills',
+                questions: [
+                    { question: 'Solve: 2x + 5 = 13', options: ['3', '4', '5', '6'], correct: 1 },
+                    { question: 'Simplify: 3(x + 4) - 2x', options: ['x + 12', 'x + 4', '5x + 12', 'x - 12'], correct: 0 },
+                    { question: 'If y = 3x - 2, what is y when x = 5?', options: ['13', '10', '8', '5'], correct: 0 },
+                    { question: 'Solve: 4x - 7 = 2x + 9', options: ['8', '6', '10', '7'], correct: 0 },
+                    { question: 'Slope of y = 2x + 3?', options: ['2', '3', '-2', '1/2'], correct: 0 }
+                ],
+                timeLimit: 15,
+                taken: 127,
+                rating: 4.5,
+                avgScore: 85,
+                createdBy: 'system',
+                isUserCreated: false
+            },
+            {
+                id: 2,
+                title: 'Physics Fundamentals',
+                category: 'Science',
+                difficulty: 'Medium',
+                description: 'Explore the laws of motion and forces',
+                questions: [
+                    { question: 'SI unit of force?', options: ['Newton', 'Joule', 'Watt', 'Pascal'], correct: 0 },
+                    { question: 'Newton\'s first law is also called?', options: ['Inertia', 'Acceleration', 'Action-Reaction', 'Momentum'], correct: 0 },
+                    { question: 'Which is a vector quantity?', options: ['Speed', 'Mass', 'Velocity', 'Time'], correct: 2 },
+                    { question: 'Acceleration due to gravity on Earth?', options: ['9.8 m/s^2', '10 m/s^2', '9.8 km/h^2', '1.6 m/s^2'], correct: 0 },
+                    { question: 'Momentum of 5 kg at 2 m/s?', options: ['10 kg*m/s', '2.5', '7', '0.4'], correct: 0 }
+                ],
+                timeLimit: 20,
+                taken: 89,
+                rating: 4.7,
+                avgScore: 78,
+                createdBy: 'system',
+                isUserCreated: false
+            },
+            {
+                id: 3,
+                title: 'World History',
+                category: 'History',
+                difficulty: 'Hard',
+                description: 'Major events of the 20th century',
+                questions: [
+                    { question: 'Year World War I started?', options: ['1914', '1918', '1939', '1945'], correct: 0 },
+                    { question: 'Which treaty ended World War I?', options: ['Versailles', 'Paris', 'London', 'Rome'], correct: 0 },
+                    { question: 'Leader of Nazi Germany?', options: ['Hitler', 'Mussolini', 'Stalin', 'Churchill'], correct: 0 },
+                    { question: 'Year of the Moon landing?', options: ['1969', '1965', '1972', '1958'], correct: 0 },
+                    { question: 'Cold War symbol?', options: ['Berlin Wall', 'Iron Curtain', 'NATO', 'All'], correct: 3 }
+                ],
+                timeLimit: 25,
+                taken: 156,
+                rating: 4.8,
+                avgScore: 92,
+                createdBy: 'system',
+                isUserCreated: false
+            },
+            {
+                id: 4,
+                title: 'Country Capitals',
+                category: 'Geography',
+                difficulty: 'Easy',
+                description: 'Know your world capitals',
+                questions: [
+                    { question: 'Capital of France?', options: ['Paris', 'London', 'Berlin', 'Madrid'], correct: 0 },
+                    { question: 'Capital of Japan?', options: ['Tokyo', 'Seoul', 'Beijing', 'Bangkok'], correct: 0 },
+                    { question: 'Capital of Australia?', options: ['Canberra', 'Sydney', 'Melbourne', 'Perth'], correct: 0 },
+                    { question: 'Capital of Egypt?', options: ['Cairo', 'Alexandria', 'Giza', 'Luxor'], correct: 0 },
+                    { question: 'Capital of Canada?', options: ['Ottawa', 'Toronto', 'Vancouver', 'Montreal'], correct: 0 }
+                ],
+                timeLimit: 10,
+                taken: 203,
+                rating: 4.6,
+                avgScore: 88,
+                createdBy: 'system',
+                isUserCreated: false
+            }
+        ];
+
+        function mergeQuizzes(defaults, stored) {
+            const byKey = new Map();
+            defaults.forEach(q => {
+                const key = String(q.id || q.title || '').toLowerCase();
+                if (key) byKey.set(key, q);
+            });
+            stored.forEach(q => {
+                const key = String(q.id || q.title || '').toLowerCase();
+                if (key) byKey.set(key, q);
+            });
+            return Array.from(byKey.values());
+        }
+
+        function loadQuizzes() {
+            const stored = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+            const list = Array.isArray(stored) ? stored : [];
+            const merged = mergeQuizzes(defaultQuizzes, list);
+            if (JSON.stringify(merged) !== JSON.stringify(list)) {
+                localStorage.setItem('smartquiz_quizzes', JSON.stringify(merged));
+            }
+            return merged;
+        }
+
+        function renderQuickList() {
+            const list = document.getElementById('quickList');
+            const quizzes = loadQuizzes();
+
+            if (!quizzes || quizzes.length === 0) {
+                list.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i> No quizzes yet. Create one to manage it here.</div>';
+                return;
+            }
+
+            let html = `
+                <div class="quiz-row header">
+                    <div class="quiz-cell">Quiz Title</div>
+                    <div class="quiz-cell">Category</div>
+                    <div class="quiz-cell">Questions</div>
+                    <div class="quiz-cell">Difficulty</div>
+                    <div class="quiz-cell" style="justify-content:flex-end;">Actions</div>
+                </div>
+            `;
+            quizzes.forEach(quiz => {
+                const title = quiz.title || 'Untitled Quiz';
+                const questionsCount = Array.isArray(quiz.questions) ? quiz.questions.length : (quiz.totalQuestions || 0);
+                const marksPerQuestion = Number.isFinite(quiz.marksPerQuestion) ? quiz.marksPerQuestion : 1;
+                const totalMarks = Number.isFinite(quiz.totalMarks)
+                    ? quiz.totalMarks
+                    : Number.isFinite(quiz.marks)
+                        ? quiz.marks
+                        : questionsCount * marksPerQuestion;
+                const timeLimit = quiz.timeLimit || quiz.duration || quiz.time || quiz.timeMinutes || 15;
+                html += `
+                    <div class="quiz-row" title="${title}">
+                        <div class="quiz-cell quiz-title">${title}</div>
+                        <div class="quiz-cell">${quiz.category || 'General'}</div>
+                        <div class="quiz-cell">${questionsCount}</div>
+                        <div class="quiz-cell">${quiz.difficulty || 'Easy'}</div>
+                        <div class="quiz-actions">
+                            <i class="fas fa-eye action-icon action-review" onclick="reviewQuiz(${quiz.id})" title="Review ${title}" aria-label="Review ${title}" role="button" tabindex="0"></i>
+                            <i class="fas fa-edit action-icon action-edit" onclick="editQuiz(${quiz.id})" title="Edit ${title}" aria-label="Edit ${title}" role="button" tabindex="0"></i>
+                            <i class="fas fa-trash action-icon action-delete" onclick="deleteQuiz(${quiz.id})" title="Delete ${title}" aria-label="Delete ${title}" role="button" tabindex="0"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        window.reviewQuiz = function(quizId) {
+            const quizzes = loadQuizzes();
+            const quiz = quizzes.find(q => String(q.id) === String(quizId));
+            sessionStorage.setItem('quizSource', 'manage');
+            if (quiz) {
+                sessionStorage.setItem('smartquiz_last_quiz', JSON.stringify(quiz));
+                window.name = JSON.stringify({ smartquiz_last_quiz: quiz });
+                sessionStorage.setItem('smartquiz_return_to', 'manage-quiz.html');
+                localStorage.setItem('smartquiz_last_quiz_id', String(quiz.id));
+            }
+            window.location.href = `exam.html?quizId=${encodeURIComponent(quizId)}&source=manage`;
+        };
+
+        window.editQuiz = function(quizId) {
+            const quizzes = loadQuizzes();
+            const quiz = quizzes.find(q => String(q.id) === String(quizId));
+            if (quiz) {
+                sessionStorage.setItem('smartquiz_edit_quiz', JSON.stringify(quiz));
+                window.name = JSON.stringify({ smartquiz_edit_quiz: quiz });
+                sessionStorage.setItem('smartquiz_edit_mode', '1');
+                sessionStorage.setItem('smartquiz_return_to', 'manage-quiz.html');
+                localStorage.setItem('smartquiz_last_quiz_id', String(quiz.id));
+            }
+            window.location.href = `create-quiz.html?edit=${encodeURIComponent(quizId)}&source=create`;
+        };
+
+        window.deleteQuiz = function(quizId) {
+            if (!confirm('Are you sure you want to delete this quiz? This cannot be undone.')) return;
+            let quizzes = loadQuizzes();
+            quizzes = quizzes.filter(q => String(q.id) !== String(quizId));
+            localStorage.setItem('smartquiz_quizzes', JSON.stringify(quizzes));
+            renderQuickList();
+        };
+
+        window.logout = function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        };
+
+        renderQuickList();
+    </script>
+</body>
+</html>
+

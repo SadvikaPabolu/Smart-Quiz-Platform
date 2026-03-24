@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Quizzes - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: #666;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            display: flex;
+            align-items: center;
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+        }
+
+        .search-box i {
+            color: #9ca3af;
+            margin-right: 0.5rem;
+        }
+
+        .search-box input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 0.5rem 0;
+            font-family: 'Poppins', sans-serif;
+            outline: none;
+        }
+
+        .filter-select {
+            padding: 0.8rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: white;
+            min-width: 150px;
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* Categories Grid */
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #4f46e5;
+        }
+
+        .category-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .category-icon.blue { background: #e0f2fe; color: #0284c7; }
+        .category-icon.green { background: #dcfce7; color: #16a34a; }
+        .category-icon.purple { background: #f3e8ff; color: #9333ea; }
+        .category-icon.orange { background: #fff7ed; color: #ea580c; }
+
+        .category-card h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .category-card p {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-count {
+            color: #4f46e5;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Quizzes Grid – with flex column to keep button at bottom */
+        .quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .quiz-header {
+            height: 120px;
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .quiz-header i {
+            font-size: 3rem;
+            color: rgba(255,255,255,0.3);
+        }
+
+        .difficulty-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .difficulty-badge.easy { background: #dcfce7; color: #16a34a; }
+        .difficulty-badge.medium { background: #fef9c3; color: #ca8a04; }
+        .difficulty-badge.hard { background: #fee2e2; color: #dc2626; }
+
+        .quiz-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .quiz-body h3 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .quiz-category {
+            color: #4f46e5;
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .quiz-meta span i {
+            margin-right: 0.3rem;
+            color: #4f46e5;
+        }
+
+        .quiz-description {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .quiz-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .rating i {
+            color: #fbbf24;
+        }
+
+        .btn-start {
+            width: 100%;
+            padding: 0.8rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: auto; /* pushes button to bottom */
+        }
+
+        .btn-start:hover {
+            background: #6366f1;
+        }
+
+        .no-quizzes {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 20px;
+            color: #9ca3af;
+            grid-column: 1 / -1;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .filter-section {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .filter-select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="available-quizzes.html" class="active"><i class="fas fa-question-circle"></i> Available Quizzes</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- Static icon will be replaced by script -->
+                <div class="profile-icon" id="profileInitials">JS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Available Quizzes</h1>
+            <p>Choose from hundreds of quizzes across different topics</p>
+        </div>
+
+        <div class="filter-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search quizzes..." id="searchQuiz">
+            </div>
+            <select class="filter-select" id="categoryFilter">
+                <option value="">All Categories</option>
+                <option value="Mathematics">Mathematics</option>
+                <option value="Science">Science</option>
+                <option value="History">History</option>
+                <option value="Geography">Geography</option>
+                <option value="Literature">Literature</option>
+                <option value="Technology">Technology</option>
+                <option value="Others">Others</option>
+            </select>
+            <select class="filter-select" id="difficultyFilter">
+                <option value="">All Difficulties</option>
+                <option value="Easy">Easy</option>
+                <option value="Medium">Medium</option>
+                <option value="Hard">Hard</option>
+            </select>
+        </div>
+
+        <!-- Categories (static, for quick filtering) -->
+        <div class="categories-grid">
+            <div class="category-card" onclick="filterByCategory('Mathematics')">
+                <div class="category-icon blue">
+                    <i class="fas fa-calculator"></i>
+                </div>
+                <h3>Mathematics</h3>
+                <p>Algebra, Calculus, Geometry</p>
+                <span class="quiz-count" id="mathCount">0 quizzes</span>
+            </div>
+            <div class="category-card" onclick="filterByCategory('Science')">
+                <div class="category-icon green">
+                    <i class="fas fa-flask"></i>
+                </div>
+                <h3>Science</h3>
+                <p>Physics, Chemistry, Biology</p>
+                <span class="quiz-count" id="scienceCount">0 quizzes</span>
+            </div>
+            <div class="category-card" onclick="filterByCategory('History')">
+                <div class="category-icon purple">
+                    <i class="fas fa-landmark"></i>
+                </div>
+                <h3>History</h3>
+                <p>World History, Ancient Civilizations</p>
+                <span class="quiz-count" id="historyCount">0 quizzes</span>
+            </div>
+            <div class="category-card" onclick="filterByCategory('Geography')">
+                <div class="category-icon orange">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Geography</h3>
+                <p>Countries, Capitals, Landmarks</p>
+                <span class="quiz-count" id="geographyCount">0 quizzes</span>
+            </div>
+        </div>
+
+        <!-- Quizzes Grid (populated dynamically) -->
+        <div class="quizzes-grid" id="quizzesGrid"></div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadStudentProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('studentProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'John Student' };
+
+        // Restore photo from persistent store if missing (student)
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadStudentProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update navbar initials (temporary, will be replaced by image)
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        // Helper to get student photo source (prefer custom data URL, then photos folder .jpeg)
+        function getStudentPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.jpeg`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getStudentPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Student';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // Call it immediately
+        updateNavbarIcon();
+
+        // ==================== QUIZ LOADING & FILTERING (unchanged) ====================
+
+        function buildFallbackQuestions(title) {
+            return [
+                {
+                    question: `Intro to ${title}: What is the best answer?`,
+                    options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                    correct: 0
+                },
+                {
+                    question: `Basics of ${title}: Choose the correct option.`,
+                    options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                    correct: 1
+                },
+                {
+                    question: `${title} practice: Pick one.`,
+                    options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                    correct: 2
+                }
+            ];
+        }
+
+        function ensureQuestions(quiz) {
+            if (!Array.isArray(quiz.questions) || quiz.questions.length === 0) {
+                quiz.questions = buildFallbackQuestions(quiz.title || quiz.category || 'Quiz');
+            }
+            return quiz;
+        }
+
+        // Load quizzes from localStorage (created by teachers)
+        function loadQuizzes() {
+            let quizzes = JSON.parse(localStorage.getItem('smartquiz_quizzes'));
+
+            // If no quizzes in localStorage, seed with default set (so page isn't empty)
+            if (!quizzes || quizzes.length === 0) {
+                quizzes = [
+                    {
+                        id: 101,
+                        title: 'Basic Algebra',
+                        category: 'Mathematics',
+                        difficulty: 'Easy',
+                        questions: [
+                            { question: 'What is 2+2?', options: ['3','4','5','6'], correct: 1 },
+                            { question: 'Solve x: 2x=10', options: ['3','5','7','10'], correct: 1 }
+                        ],
+                        timeLimit: 15,
+                        rating: 4.5,
+                        taken: 1234,
+                        description: 'Test your knowledge of basic algebraic concepts',
+                        icon: 'fa-calculator'
+                    },
+                    {
+                        id: 102,
+                        title: 'Physics Fundamentals',
+                        category: 'Science',
+                        difficulty: 'Medium',
+                        questions: [
+                            { question: 'SI unit of force?', options: ['Newton','Joule','Watt','Pascal'], correct: 0 }
+                        ],
+                        timeLimit: 20,
+                        rating: 4.7,
+                        taken: 2567,
+                        description: 'Explore the basics of physics and mechanics',
+                        icon: 'fa-flask'
+                    },
+                    {
+                        id: 103,
+                        title: 'World History',
+                        category: 'History',
+                        difficulty: 'Hard',
+                        questions: [],
+                        timeLimit: 25,
+                        rating: 4.8,
+                        taken: 3789,
+                        description: 'Challenge yourself with world history questions',
+                        icon: 'fa-landmark'
+                    },
+                    {
+                        id: 104,
+                        title: 'Country Capitals',
+                        category: 'Geography',
+                        difficulty: 'Easy',
+                        questions: [],
+                        timeLimit: 10,
+                        rating: 4.6,
+                        taken: 4567,
+                        description: 'Test your knowledge of world capitals',
+                        icon: 'fa-globe'
+                    },
+                    {
+                        id: 105,
+                        title: 'Biology Basics',
+                        category: 'Science',
+                        difficulty: 'Medium',
+                        questions: [],
+                        timeLimit: 15,
+                        rating: 4.4,
+                        taken: 1890,
+                        description: 'Explore the fundamentals of biology',
+                        icon: 'fa-dna'
+                    },
+                    {
+                        id: 106,
+                        title: 'JavaScript Mastery',
+                        category: 'Technology',
+                        difficulty: 'Hard',
+                        questions: [],
+                        timeLimit: 20,
+                        rating: 4.9,
+                        taken: 2345,
+                        description: 'Advanced JavaScript concepts and patterns',
+                        icon: 'fa-code'
+                    },
+                    {
+                        id: 107,
+                        title: 'Shakespearean Literature',
+                        category: 'Literature',
+                        difficulty: 'Medium',
+                        questions: [],
+                        timeLimit: 15,
+                        rating: 4.3,
+                        taken: 1567,
+                        description: 'Explore the works of William Shakespeare',
+                        icon: 'fa-feather'
+                    },
+                    {
+                        id: 108,
+                        title: 'Ancient Civilizations',
+                        category: 'History',
+                        difficulty: 'Medium',
+                        questions: [],
+                        timeLimit: 20,
+                        rating: 4.5,
+                        taken: 2123,
+                        description: 'Journey through Egypt, Greece, Rome, and Mesopotamia',
+                        icon: 'fa-pyramid'
+                    }
+                ];
+                // Ensure seeded quizzes have questions
+                quizzes = quizzes.map(ensureQuestions);
+                localStorage.setItem('smartquiz_quizzes', JSON.stringify(quizzes));
+            }
+            // Ensure all quizzes have at least one question so exams can render
+            quizzes = quizzes.map(ensureQuestions);
+            localStorage.setItem('smartquiz_quizzes', JSON.stringify(quizzes));
+            return quizzes;
+        }
+
+        // Global quizzes array and filtered list
+        let allQuizzes = loadQuizzes();
+        let filteredQuizzes = [...allQuizzes];
+
+        // Update category counts
+        function updateCategoryCounts() {
+            document.getElementById('mathCount').textContent = allQuizzes.filter(q => q.category === 'Mathematics').length + ' quizzes';
+            document.getElementById('scienceCount').textContent = allQuizzes.filter(q => q.category === 'Science').length + ' quizzes';
+            document.getElementById('historyCount').textContent = allQuizzes.filter(q => q.category === 'History').length + ' quizzes';
+            document.getElementById('geographyCount').textContent = allQuizzes.filter(q => q.category === 'Geography').length + ' quizzes';
+        }
+
+        // Render quiz cards
+        function renderQuizzes() {
+            const grid = document.getElementById('quizzesGrid');
+            if (filteredQuizzes.length === 0) {
+                grid.innerHTML = '<div class="no-quizzes"><i class="fas fa-frown"></i> No quizzes match your criteria.</div>';
+                return;
+            }
+
+            let html = '';
+            filteredQuizzes.forEach(quiz => {
+                const difficultyClass = quiz.difficulty.toLowerCase();
+                // Use quiz.icon if exists, else choose based on category
+                const icon = quiz.icon || (quiz.category === 'Mathematics' ? 'fa-calculator' :
+                                          quiz.category === 'Science' ? 'fa-flask' :
+                                          quiz.category === 'History' ? 'fa-landmark' :
+                                          quiz.category === 'Geography' ? 'fa-globe' :
+                                          quiz.category === 'Literature' ? 'fa-feather' :
+                                          quiz.category === 'Technology' ? 'fa-code' : 'fa-question-circle');
+
+                html += `
+                    <div class="quiz-card" onclick="startQuiz(${quiz.id})">
+                        <div class="quiz-header">
+                            <i class="fas ${icon}"></i>
+                            <span class="difficulty-badge ${difficultyClass}">${quiz.difficulty}</span>
+                        </div>
+                        <div class="quiz-body">
+                            <h3>${quiz.title}</h3>
+                            <div class="quiz-category">${quiz.category}</div>
+                            <div class="quiz-meta">
+                                <span><i class="fas fa-question-circle"></i> ${quiz.questions ? quiz.questions.length : 20} Questions</span>
+                                <span><i class="fas fa-clock"></i> ${quiz.timeLimit} mins</span>
+                            </div>
+                            <div class="quiz-description">${quiz.description || 'No description provided.'}</div>
+                            <div class="quiz-stats">
+                                <span><i class="fas fa-users"></i> ${(quiz.taken || 0).toLocaleString()} taken</span>
+                                <span class="rating"><i class="fas fa-star"></i> ${quiz.rating || 'New'}</span>
+                            </div>
+                            <button class="btn-start" onclick="event.stopPropagation(); startQuiz(${quiz.id})">Start Quiz</button>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+            updateCategoryCounts();
+        }
+
+        // Filtering logic
+        function filterQuizzes() {
+            const searchTerm = document.getElementById('searchQuiz').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const difficulty = document.getElementById('difficultyFilter').value;
+
+            filteredQuizzes = allQuizzes.filter(quiz => {
+                const matchesSearch = quiz.title.toLowerCase().includes(searchTerm) ||
+                                     (quiz.description && quiz.description.toLowerCase().includes(searchTerm));
+                const matchesCategory = !category || quiz.category === category;
+                const matchesDifficulty = !difficulty || quiz.difficulty === difficulty;
+                return matchesSearch && matchesCategory && matchesDifficulty;
+            });
+
+            renderQuizzes();
+        }
+
+        // Category filter quick access
+        function filterByCategory(cat) {
+            document.getElementById('categoryFilter').value = cat;
+            filterQuizzes();
+        }
+
+        // Start quiz – redirect to exam with source=available
+        function startQuiz(quizId) {
+            const quiz = allQuizzes.find(q => String(q.id) === String(quizId));
+            if (quiz) {
+                sessionStorage.setItem('smartquiz_last_quiz', JSON.stringify(quiz));
+                // window.name survives origin changes; use as extra fallback
+                window.name = JSON.stringify({ smartquiz_last_quiz: quiz });
+                localStorage.setItem('smartquiz_last_quiz_id', String(quiz.id));
+            }
+            window.location.href = `exam.html?id=${encodeURIComponent(quizId)}&source=available`;
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+
+        // Attach event listeners
+        document.getElementById('searchQuiz').addEventListener('input', filterQuizzes);
+        document.getElementById('categoryFilter').addEventListener('change', filterQuizzes);
+        document.getElementById('difficultyFilter').addEventListener('change', filterQuizzes);
+
+        // Initial render
+        renderQuizzes();
+
+        // Also update dropdown to click-based (same as dashboard) if you want
+        // Optional: make profile dropdown click-based
+        const profileMenu = document.querySelector('.profile-menu');
+        const dropdown = document.querySelector('.profile-dropdown');
+        if (profileMenu && dropdown) {
+            profileMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isVisible = dropdown.style.display === 'block';
+                dropdown.style.display = isVisible ? 'none' : 'block';
+            });
+            document.addEventListener('click', function(e) {
+                if (!profileMenu.contains(e.target)) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
+

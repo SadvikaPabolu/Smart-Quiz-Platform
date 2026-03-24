@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ----- Your exact styles (preserved) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .logo i {
+            font-size: 2rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast; /* Sharper downscaling in WebKit */
+            image-rendering: crisp-edges; /* Fallback for pixel art – remove if too sharp */
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* 🔥 NEW: Overlay and modal for streak celebration */
+        .streak-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 999;
+            display: none;
+        }
+
+        .streak-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #ff8c00, #ff0080);
+            color: white;
+            border-radius: 16px;
+            padding: 2rem;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            width: 320px;
+            text-align: center;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .streak-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+        .streak-modal-close:hover {
+            opacity: 1;
+        }
+
+        .streak-modal i {
+            font-size: 5rem;
+            color: gold;
+            filter: drop-shadow(0 0 15px orange);
+            margin-bottom: 1rem;
+        }
+
+        .streak-modal-date {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Welcome Section – original blue gradient */
+        .welcome-section {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .welcome-text h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .welcome-text p {
+            opacity: 0.9;
+        }
+
+        .streak-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        /* 🔥 Enhanced streak earned style (vibrant gold) */
+        .streak-badge.streak-earned-today {
+            background: rgba(255,215,0,0.3);
+            border: 2px solid gold;
+            box-shadow: 0 0 20px gold;
+        }
+        .streak-badge.streak-earned-today i {
+            color: gold;
+            text-shadow: 0 0 12px orange;
+        }
+
+        .streak-badge i {
+            font-size: 2rem;
+            color: #fbbf24;
+            transition: color 0.3s;
+        }
+
+        .streak-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Stats Grid – original card design */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .stat-icon.blue { background: #e0f2fe; color: #0284c7; }
+        .stat-icon.green { background: #dcfce7; color: #16a34a; }
+        .stat-icon.purple { background: #f3e8ff; color: #9333ea; }
+        .stat-icon.orange { background: #fff7ed; color: #ea580c; }
+
+        .stat-info h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.2rem;
+            color: #333;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Charts Row */
+        .charts-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .chart-header h3 {
+            color: #333;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chart-header i {
+            color: #4f46e5;
+            font-size: 1.5rem;
+        }
+
+        /* Topics Grid – performance by topic */
+        .topics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .topic-card {
+            background: #f9fafb;
+            border-radius: 10px;
+            padding: 0.8rem;
+            border-left: 4px solid;
+        }
+
+        .topic-card h4 {
+            margin-bottom: 0.4rem;
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin: 0.4rem 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .accuracy {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .topic-count {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 0.2rem;
+        }
+
+        /* Recent Quiz Results */
+        .recent-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2.5rem 0 1.5rem;
+        }
+        .recent-header h2 {
+            font-size: 1.7rem;
+            color: #1f2937;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .recent-header i {
+            color: #4f46e5;
+            font-size: 1.6rem;
+        }
+        .view-all-link {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: color 0.2s;
+        }
+        .view-all-link:hover {
+            color: #6366f1;
+        }
+
+        .quiz-result-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border-left: 6px solid;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .quiz-result-card:hover {
+            transform: translateX(6px);
+            box-shadow: 0 12px 24px rgba(79,70,229,0.1);
+        }
+        .quiz-result-card.pass { border-left-color: #10b981; }
+        .quiz-result-card.warning { border-left-color: #f59e0b; }
+        .quiz-result-card.fail { border-left-color: #10b981; }
+
+        .quiz-result-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .quiz-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4f46e5;
+            font-size: 1.5rem;
+        }
+        .quiz-details {
+            flex: 1;
+        }
+        .quiz-result-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #1f2937;
+            margin-bottom: 0.3rem;
+        }
+        .quiz-result-meta {
+            display: flex;
+            gap: 1.2rem;
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+        .quiz-result-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .quiz-result-meta i {
+            color: #9ca3af;
+            font-size: 0.8rem;
+        }
+
+        .quiz-result-score {
+            text-align: right;
+            min-width: 100px;
+        }
+        .score-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #4f46e5;
+            line-height: 1.2;
+        }
+        .score-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 50px;
+            color: white;
+            border: none;
+            margin-top: 0.2rem;
+        }
+
+        .empty-results {
+            text-align: center;
+            color: #9ca3af;
+            padding: 3rem;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+        }
+        .empty-results i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.4;
+        }
+
+        /* Notification styles (unchanged) */
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        .notification-menu {
+            position: relative;
+            cursor: pointer;
+        }
+        .notification-menu i {
+            font-size: 1.5rem;
+            color: #FFD700;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -8px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 0.15rem 0.35rem;
+            font-size: 0.65rem;
+            font-weight: 600;
+            min-width: 16px;
+            text-align: center;
+            line-height: 1.2;
+            border: 2px solid white;
+            display: none;
+        }
+        .notification-badge.active { display: inline-block; }
+        .notification-dropdown {
+            position: absolute;
+            top: 40px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 300px;
+            display: none;
+            z-index: 1000;
+        }
+        /* Hover disabled; dropdown is click-based */
+        .notification-menu:hover .notification-dropdown { display: none; }
+        .notification-header {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid #f3f4f6;
+            transition: background 0.3s;
+        }
+        .notification-item:hover { background: #f9fafb; }
+        .notification-item.unread { background: #eef2ff; }
+        .notification-item .title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.2rem;
+        }
+        .notification-item .time {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        .notification-item .message {
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+        }
+        .toast {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid #4f46e5;
+        }
+        .toast.success { border-left-color: #10b981; }
+        .toast.info { border-left-color: #4f46e5; }
+        .toast i { font-size: 1.2rem; }
+        .toast.success i { color: #10b981; }
+        .toast.info i { color: #4f46e5; }
+        .toast-content { flex: 1; }
+        .toast-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.2rem;
+        }
+        .toast-message {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        .toast-close {
+            cursor: pointer;
+            color: #9ca3af;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 1rem;
+            }
+            .nav-menu {
+                display: none;
+            }
+            .nav-right {
+                gap: 1rem;
+            }
+            .quiz-result-card {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .quiz-result-score {
+                text-align: left;
+                margin-left: 3.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-brain"></i><span>SmartQuiz</span></div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="available-quizzes.html"><i class="fas fa-question-circle"></i> Available Quizzes</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> History</a></li>
+            </ul>
+            <div class="nav-right">
+                <!-- NOTIFICATION BELL -->
+                <div class="notification-menu">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge" id="notificationBadge">0</span>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">Notifications</div>
+                        <div class="notification-list" id="notificationList">
+                            <div style="padding:1rem; text-align:center; color:#6b7280;">No new notifications</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- PROFILE MENU -->
+                <div class="profile-menu">
+                    <!-- This div will be replaced dynamically with image + fallback -->
+                    <div class="profile-icon" id="profileInitials">AJ</div>
+                    <i class="fas fa-chevron-down"></i>
+                    <div class="profile-dropdown">
+                        <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                        <hr>
+                        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TOAST CONTAINER (for other notifications) -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 🔥 NEW: Overlay and modal for streak celebration -->
+    <div class="streak-overlay" id="streakOverlay"></div>
+    <div class="streak-modal" id="streakModal">
+        <button class="streak-modal-close" onclick="closeStreakModal()">&times;</button>
+        <i class="fas fa-fire"></i>
+        <div class="streak-modal-date" id="streakModalDate"></div>
+    </div>
+
+    <div class="container">
+        <!-- Welcome Section (original blue gradient with streak badge) -->
+        <div class="welcome-section">
+            <div class="welcome-text">
+                <h1>Welcome back, <span id="userName">John</span>! 👋</h1>
+                <p>Ready to test your knowledge today?</p>
+            </div>
+            <div class="streak-badge" id="streakBadge">
+                <i class="fas fa-fire"></i>
+                <div class="streak-info">
+                    <h3 id="streakDisplay">0</h3>
+                    <p>Day Streak</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Grid (original style) -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalScore">0</h3>
+                    <p>Total Score</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="overallAccuracy">0%</h3>
+                    <p>Overall Accuracy</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="quizzesTaken">0</h3>
+                    <p>Quizzes Taken</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <i class="fas fa-star"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="achievements">0</h3>
+                    <p>Achievements</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+            <!-- Weekly Progress Chart -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-chart-line"></i> Weekly Progress</h3>
+                    <span style="color: #6b7280; font-size:0.9rem;">Last 7 days</span>
+                </div>
+                <div style="height:280px;"><canvas id="progressChart"></canvas></div>
+            </div>
+
+            <!-- Performance by Topic -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fas fa-book"></i> Performance by Topic</h3>
+                </div>
+                <div class="topics-grid" id="topicsGrid"></div>
+            </div>
+        </div>
+
+        <!-- Recent Quiz Results -->
+        <div class="recent-header">
+            <h2><i class="fas fa-history"></i> Recent Quiz Results</h2>
+            <a href="history.html" class="view-all-link">View All <i class="fas fa-arrow-right"></i></a>
+        </div>
+        <div id="recentResults"></div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadStudentProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('studentProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'John Student' };
+
+        // Ensure streak exists (default to 0)
+        if (currentUser.streak === undefined) {
+            currentUser.streak = 0;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        }
+
+        // Restore photo from persistent store if missing
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadStudentProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update UI elements that don't involve the navbar icon yet
+        document.getElementById('profileName').textContent = currentUser.name;
+        document.getElementById('userName').innerText = currentUser.name.split(' ')[0];
+        document.getElementById('streakDisplay').innerText = currentUser.streak || 0;
+
+        // Helper to get photo source (prefer custom data URL, then photos folder .jpeg)
+        function getStudentPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.jpeg`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getStudentPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Student';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // --- Apply streak badge style if last quiz date is today
+        function getTodayString() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        const streakBadge = document.getElementById('streakBadge');
+        if (currentUser.lastQuizDate === getTodayString()) {
+            streakBadge.classList.add('streak-earned-today');
+        } else {
+            streakBadge.classList.remove('streak-earned-today');
+        }
+
+        // --- Show streak modal if flag exists (set by exam page)
+        function showStreakModal() {
+            const streakToast = JSON.parse(localStorage.getItem('streakToast'));
+            if (!streakToast) return;
+
+            const dateObj = new Date(streakToast.date);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                year: 'numeric', month: 'long', day: 'numeric' 
+            });
+            const formattedTime = dateObj.toLocaleTimeString('en-US', {
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            document.getElementById('streakModalDate').innerText = `${formattedDate} at ${formattedTime}`;
+            document.getElementById('streakOverlay').style.display = 'block';
+            document.getElementById('streakModal').style.display = 'flex';
+
+            localStorage.removeItem('streakToast');
+        }
+
+        window.closeStreakModal = function() {
+            document.getElementById('streakOverlay').style.display = 'none';
+            document.getElementById('streakModal').style.display = 'none';
+        };
+
+        showStreakModal();
+
+        // ----- DYNAMIC DATA FROM ATTEMPTS -----
+        const attempts = JSON.parse(localStorage.getItem('student_attempts')) || [];
+        const quizzes = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+
+        const totalScore = attempts.reduce((sum, a) => sum + a.score, 0);
+        const quizzesTaken = attempts.length;
+        const avgScore = quizzesTaken ? Math.round(totalScore / quizzesTaken) : 0;
+        const achievements = 12; // placeholder
+
+        document.getElementById('totalScore').innerText = totalScore.toLocaleString();
+        document.getElementById('overallAccuracy').innerText = avgScore + '%';
+        document.getElementById('quizzesTaken').innerText = quizzesTaken;
+        document.getElementById('achievements').innerText = achievements;
+
+        // ---------- PERFORMANCE BY TOPIC ----------
+        const topicList = [
+            { name: 'Mathematics', color: '#4f46e5' },
+            { name: 'Science', color: '#16a34a' },
+            { name: 'History', color: '#9333ea' },
+            { name: 'Geography', color: '#ea580c' },
+            { name: 'Literature', color: '#f97316' },
+            { name: 'Technology', color: '#06b6d4' }
+        ];
+
+        const topicMap = new Map();
+        topicList.forEach(t => {
+            topicMap.set(t.name, { totalScore: 0, count: 0, color: t.color });
+        });
+
+        attempts.forEach(attempt => {
+            const quiz = quizzes.find(q => q.id === attempt.quizId);
+            if (!quiz) return;
+            const category = quiz.category;
+            if (topicMap.has(category)) {
+                const data = topicMap.get(category);
+                data.totalScore += attempt.score;
+                data.count++;
+            }
+        });
+
+        const topicsGrid = document.getElementById('topicsGrid');
+        topicsGrid.innerHTML = '';
+        topicMap.forEach((value, category) => {
+            const avg = value.count ? Math.round(value.totalScore / value.count) : 0;
+            const color = value.color;
+            topicsGrid.innerHTML += `
+                <div class="topic-card" style="border-left-color: ${color};">
+                    <h4>${category}</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${avg}%; background: ${color};"></div>
+                    </div>
+                    <span class="accuracy" style="color: ${color};">${avg}%</span>
+                    <div class="topic-count">${value.count} quiz${value.count !== 1 ? 'zes' : ''}</div>
+                </div>
+            `;
+        });
+
+        // Recent results – show last 5 attempts
+        const recentDiv = document.getElementById('recentResults');
+        if (attempts.length) {
+            const sorted = attempts.sort((a,b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+            recentDiv.innerHTML = '';
+            sorted.forEach(a => {
+                const score = a.score;
+                let badgeGradient = '', badgeText = '';
+                if (score >= 80) {
+                    badgeGradient = 'linear-gradient(135deg, #10b981, #34d399)';
+                    badgeText = 'Excellent';
+                } else if (score >= 60) {
+                    badgeGradient = 'linear-gradient(135deg, #f59e0b, #fbbf24)';
+                    badgeText = 'Good';
+                } else {
+                    badgeGradient = 'linear-gradient(135deg, #10b981, #34d399)';
+                    badgeText = 'Needs work';
+                }
+                const date = new Date(a.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const timeSpent = a.timeSpent || '—';
+                const iconClass = 'fa-question-circle';
+                recentDiv.innerHTML += `
+                    <div class="quiz-result-card ${score >= 80 ? 'pass' : (score >= 60 ? 'warning' : 'fail')}">
+                        <div class="quiz-result-info">
+                            <div class="quiz-icon">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="quiz-details">
+                                <div class="quiz-result-title">${a.quizTitle}</div>
+                                <div class="quiz-result-meta">
+                                    <span><i class="far fa-clock"></i> ${timeSpent}</span>
+                                    <span><i class="far fa-calendar-alt"></i> ${date}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="quiz-result-score">
+                            <div class="score-value">${Math.round(score)}%</div>
+                            <span class="score-badge" style="background: ${badgeGradient};">${badgeText}</span>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            recentDiv.innerHTML = '<div class="empty-results"><i class="fas fa-clipboard-list"></i><p>No quizzes taken yet. Start taking quizzes to see your results here!</p></div>';
+        }
+
+        // Weekly Progress Chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Score %',
+                    data: [68, 72, 85, 78, 92, 88, 82],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                    tension: 0.3,
+                    fill: true,
+                    pointBackgroundColor: '#4f46e5',
+                    pointBorderColor: 'white',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { backgroundColor: '#1f2937' } },
+                scales: {
+                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(0,0,0,0.04)' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // ---------- PROFILE DROPDOWN (CLICK‑BASED) ----------
+        const profileMenu = document.querySelector('.profile-menu');
+        const profileDropdown = document.querySelector('.profile-dropdown');
+        profileMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+            if (!profileMenu.contains(e.target)) profileDropdown.style.display = 'none';
+        });
+
+        // ---------- NOTIFICATION SYSTEM ----------
+        const notificationMenu = document.querySelector('.notification-menu');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const notificationList = document.getElementById('notificationList');
+        let notifications = [];
+
+        function loadNotificationsFromStorage() {
+            const stored = localStorage.getItem('student_notifications');
+            notifications = stored ? JSON.parse(stored) : [];
+            renderNotifications();
+            updateBadge();
+        }
+        function saveNotifications() {
+            localStorage.setItem('student_notifications', JSON.stringify(notifications));
+        }
+        function renderNotifications() {
+            if (notifications.length === 0) {
+                notificationList.innerHTML = '<div style="padding:1rem; text-align:center; color:#6b7280;">No notifications</div>';
+                return;
+            }
+            let html = '';
+            notifications.slice().reverse().forEach(notif => {
+                const unreadClass = notif.read ? '' : 'unread';
+                html += `
+                    <div class="notification-item ${unreadClass}" onclick="markAsRead(${notif.id})">
+                        <div class="title">${notif.title}</div>
+                        <div class="message">${notif.message}</div>
+                        <div class="time">${notif.time}</div>
+                    </div>
+                `;
+            });
+            notificationList.innerHTML = html;
+        }
+        function updateBadge() {
+            const unread = notifications.filter(n => !n.read).length;
+            notificationBadge.textContent = unread;
+            if (unread === 0) notificationBadge.classList.remove('active');
+            else notificationBadge.classList.add('active');
+        }
+        window.markAsRead = function(id) {
+            const notif = notifications.find(n => n.id === id);
+            if (notif && !notif.read) {
+                notif.read = true;
+                renderNotifications();
+                updateBadge();
+                saveNotifications();
+            }
+        };
+        function markAllAsRead() {
+            let changed = false;
+            notifications.forEach(n => { if (!n.read) { n.read = true; changed = true; } });
+            if (changed) { renderNotifications(); updateBadge(); saveNotifications(); }
+        }
+        function addNotification(title, message, type = 'info') {
+            const newNotif = {
+                id: Date.now() + Math.random(),
+                title: title,
+                message: message,
+                time: new Date().toLocaleString(),
+                read: false,
+                type: type
+            };
+            notifications.push(newNotif);
+            saveNotifications();
+            renderNotifications();
+            updateBadge();
+            showToast(title, message, type);
+        }
+        function showToast(title, message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <i class="fas fa-times toast-close" onclick="this.parentElement.remove()"></i>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.remove(), 5000);
+        }
+        function getLastQuizSeenKey() {
+            const safeEmail = currentUser && currentUser.email ? currentUser.email : 'guest';
+            return `student_last_quiz_seen_${safeEmail}`;
+        }
+        function getQuizTime(quiz) {
+            if (quiz && quiz.createdAt) {
+                const parsed = Date.parse(quiz.createdAt);
+                if (!Number.isNaN(parsed)) return parsed;
+                const numericCreatedAt = Number(quiz.createdAt);
+                if (Number.isFinite(numericCreatedAt)) return numericCreatedAt;
+            }
+            if (quiz && typeof quiz.id === 'number' && quiz.id > 100000000000) {
+                return quiz.id;
+            }
+            if (quiz && typeof quiz.id === 'string') {
+                const numericId = Number(quiz.id);
+                if (Number.isFinite(numericId) && numericId > 100000000000) return numericId;
+            }
+            return null;
+        }
+        function getQuizIdNumber(quiz) {
+            if (!quiz) return 0;
+            if (typeof quiz.id === 'number') return quiz.id;
+            if (typeof quiz.id === 'string') {
+                const numericId = Number(quiz.id);
+                return Number.isFinite(numericId) ? numericId : 0;
+            }
+            return 0;
+        }
+        function getQuizCursor(quiz) {
+            const ts = getQuizTime(quiz);
+            if (ts === null) return null;
+            const idNum = getQuizIdNumber(quiz);
+            return { ts, id: idNum };
+        }
+        function isCursorAfter(a, b) {
+            if (!a || !b) return false;
+            if (a.ts > b.ts) return true;
+            if (a.ts < b.ts) return false;
+            return a.id > b.id;
+        }
+        function getLatestCursor(quizzes) {
+            let latest = null;
+            quizzes.forEach(q => {
+                const c = getQuizCursor(q);
+                if (!c) return;
+                if (!latest || isCursorAfter(c, latest)) {
+                    latest = c;
+                }
+            });
+            return latest;
+        }
+        function parseStoredCursor(value) {
+            if (!value) return null;
+            try {
+                const parsed = JSON.parse(value);
+                if (parsed && typeof parsed.ts === 'number' && typeof parsed.id === 'number') {
+                    return parsed;
+                }
+            } catch (e) {
+                // fall through for legacy numeric values
+            }
+            const legacy = parseInt(value);
+            if (!Number.isNaN(legacy)) {
+                return { ts: legacy, id: 0 };
+            }
+            return null;
+        }
+        function checkForNewQuizzes() {
+            const quizzes = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+            const key = getLastQuizSeenKey();
+            const stored = localStorage.getItem(key);
+
+            const latestCursor = getLatestCursor(quizzes);
+            const cursorQuizzes = quizzes.filter(q => getQuizCursor(q) !== null);
+
+            // First time this student opens the dashboard: set baseline, don't notify old quizzes.
+            // If there are no timestamped quizzes yet, use "now" so the next new quiz triggers a notification.
+            if (stored === null) {
+                if (cursorQuizzes.length === 1) {
+                    const onlyQuiz = cursorQuizzes[0];
+                    addNotification('New Quiz Available', `"${onlyQuiz.title}" has been added.`, 'info');
+                }
+                const baseline = latestCursor || { ts: Date.now(), id: 0 };
+                localStorage.setItem(key, JSON.stringify(baseline));
+                return;
+            }
+
+            const lastSeen = parseStoredCursor(stored) || { ts: 0, id: 0 };
+            const newQuizzes = quizzes.filter(q => {
+                const c = getQuizCursor(q);
+                return c !== null && isCursorAfter(c, lastSeen);
+            });
+
+            if (newQuizzes.length) {
+                newQuizzes.forEach(quiz => addNotification('New Quiz Available', `"${quiz.title}" has been added.`, 'info'));
+            }
+
+            if (latestCursor && isCursorAfter(latestCursor, lastSeen)) {
+                localStorage.setItem(key, JSON.stringify(latestCursor));
+            }
+        }
+        function checkForSubmission() {
+            const submissionFlag = localStorage.getItem('submissionSuccess');
+            if (submissionFlag) {
+                addNotification('Quiz Submitted', 'Your quiz was submitted successfully!', 'success');
+                localStorage.removeItem('submissionSuccess');
+            }
+        }
+        loadNotificationsFromStorage();
+        checkForNewQuizzes();
+        checkForSubmission();
+        setInterval(checkForNewQuizzes, 10000);
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'smartquiz_quizzes') {
+                checkForNewQuizzes();
+            }
+        });
+        // Click-based notification dropdown
+        let notificationsOpen = false;
+        notificationMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+            notificationsOpen = !notificationsOpen;
+            notificationDropdown.style.display = notificationsOpen ? 'block' : 'none';
+            if (notificationsOpen) {
+                markAllAsRead();
+            }
+        });
+        document.addEventListener('click', function(e) {
+            if (!notificationMenu.contains(e.target)) {
+                notificationsOpen = false;
+                notificationDropdown.style.display = 'none';
+            }
+        });
+
+        // ==================== INITIALISE NAVBAR ICON ====================
+        updateNavbarIcon();
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('student_notifications');
+            window.location.href = '../index.html';
+        }
+        window.logout = logout;
+    </script>
+</body>
+</html>
+

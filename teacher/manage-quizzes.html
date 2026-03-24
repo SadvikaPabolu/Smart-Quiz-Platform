@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Quizzes - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+        }
+
+        .btn-create {
+            padding: 0.8rem 1.8rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-create:hover {
+            background: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .quizzes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quiz-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+            will-change: transform;
+        }
+
+        .quiz-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+            background: #ffffff;
+        }
+
+        .quiz-card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 1.5rem;
+            color: white;
+        }
+
+        .quiz-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-category {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .quiz-card-body {
+            padding: 1.5rem;
+        }
+
+        .quiz-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .quiz-stat label {
+            color: #666;
+        }
+
+        .quiz-stat value {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 0.6rem;
+            border: 1px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+        }
+
+        .action-btn i {
+            font-size: 0.95rem;
+            transition: transform 0.2s ease;
+        }
+
+        .action-buttons .action-btn:nth-child(1) {
+            color: #4f46e5;
+        }
+
+        .action-buttons .action-btn:nth-child(2) {
+            color: #10b981;
+        }
+
+        .action-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .action-btn:hover i {
+            transform: scale(1.15);
+        }
+
+        .action-buttons .action-btn:nth-child(1):hover {
+            color: #6366f1;
+            border-color: #6366f1;
+        }
+
+        .action-buttons .action-btn:nth-child(2):hover {
+            color: #059669;
+            border-color: #059669;
+        }
+
+        .action-btn.delete {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+
+        .action-btn.delete:hover {
+            background: #fee2e2;
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .student-stats {
+            background: #f9fafb;
+            padding: 0.8rem;
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .stat-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 1rem;
+        }
+
+        .modal-close {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .btn-create {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .quizzes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" id="nav-dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="create-quiz.html" id="nav-create-quiz"><i class="fas fa-plus-circle"></i> Create Quiz</a></li>
+                <li><a href="manage-quizzes.html" id="nav-manage-quizzes"><i class="fas fa-cogs"></i> Manage Quizzes</a></li>
+            </ul>
+            <div class="profile-menu">
+                <div class="profile-icon" id="profileInitials">PS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Manage Quizzes</h1>
+            <a href="create-quiz.html" class="btn-create">
+                <i class="fas fa-plus-circle"></i> Create New Quiz
+            </a>
+        </div>
+
+        <div class="quizzes-grid" id="quizzesGrid">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+
+    <div class="modal" id="analyticsModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-chart-bar"></i> Quiz Analytics</h2>
+            <div id="analyticsContent"></div>
+            <button class="modal-close" onclick="closeModal()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        function loadTeacherProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'John Teacher' };
+
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadTeacherProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        const profileNameEl = document.getElementById('profileName');
+        if (profileNameEl) profileNameEl.textContent = currentUser.name;
+
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getTeacherPhotoSrc();
+
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials';
+            fallback.textContent = initials;
+            fallback.style.display = 'none';
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        updateNavbarIcon();
+
+        function getDefaultQuestionsForTitle(title) {
+            const key = String(title || '').toLowerCase();
+            if (key === 'basic algebra') {
+                return [
+                    { question: 'Solve: 2x + 5 = 13', options: ['3', '4', '5', '6'], correct: 1 },
+                    { question: 'Simplify: 3(x + 4) - 2x', options: ['x + 12', 'x + 4', '5x + 12', 'x - 12'], correct: 0 },
+                    { question: 'If y = 3x - 2, what is y when x = 5?', options: ['13', '10', '8', '5'], correct: 0 },
+                    { question: 'Solve: 4x - 7 = 2x + 9', options: ['8', '6', '10', '7'], correct: 0 },
+                    { question: 'Slope of y = 2x + 3?', options: ['2', '3', '-2', '1/2'], correct: 0 }
+                ];
+            }
+            if (key === 'physics fundamentals') {
+                return [
+                    { question: 'SI unit of force?', options: ['Newton', 'Joule', 'Watt', 'Pascal'], correct: 0 },
+                    { question: 'Newton\'s first law is also called?', options: ['Inertia', 'Acceleration', 'Action-Reaction', 'Momentum'], correct: 0 },
+                    { question: 'Which is a vector quantity?', options: ['Speed', 'Mass', 'Velocity', 'Time'], correct: 2 },
+                    { question: 'Acceleration due to gravity on Earth?', options: ['9.8 m/s^2', '10 m/s^2', '9.8 km/h^2', '1.6 m/s^2'], correct: 0 },
+                    { question: 'Momentum of 5 kg at 2 m/s?', options: ['10 kg*m/s', '2.5', '7', '0.4'], correct: 0 }
+                ];
+            }
+            if (key === 'world history') {
+                return [
+                    { question: 'Year World War I started?', options: ['1914', '1918', '1939', '1945'], correct: 0 },
+                    { question: 'Which treaty ended World War I?', options: ['Versailles', 'Paris', 'London', 'Rome'], correct: 0 },
+                    { question: 'Leader of Nazi Germany?', options: ['Hitler', 'Mussolini', 'Stalin', 'Churchill'], correct: 0 },
+                    { question: 'Year of the Moon landing?', options: ['1969', '1965', '1972', '1958'], correct: 0 },
+                    { question: 'Cold War symbol?', options: ['Berlin Wall', 'Iron Curtain', 'NATO', 'All'], correct: 3 }
+                ];
+            }
+            if (key === 'country capitals') {
+                return [
+                    { question: 'Capital of France?', options: ['Paris', 'London', 'Berlin', 'Madrid'], correct: 0 },
+                    { question: 'Capital of Japan?', options: ['Tokyo', 'Seoul', 'Beijing', 'Bangkok'], correct: 0 },
+                    { question: 'Capital of Australia?', options: ['Canberra', 'Sydney', 'Melbourne', 'Perth'], correct: 0 },
+                    { question: 'Capital of Egypt?', options: ['Cairo', 'Alexandria', 'Giza', 'Luxor'], correct: 0 },
+                    { question: 'Capital of Canada?', options: ['Ottawa', 'Toronto', 'Vancouver', 'Montreal'], correct: 0 }
+                ];
+            }
+            return null;
+        }
+
+        function sanitizeQuizQuestions(quiz) {
+            const raw = Array.isArray(quiz.questions) ? quiz.questions : [];
+            const valid = raw.filter(q => q && typeof q.question === 'string' && q.question.trim() && Array.isArray(q.options) && q.options.length > 0);
+            const allSample = raw.length > 0 && raw.every(q => q && q.question === 'Sample');
+            if (allSample) {
+                const fallback = getDefaultQuestionsForTitle(quiz.title);
+                if (fallback) {
+                    return { ...quiz, questions: fallback };
+                }
+            }
+            if (valid.length === raw.length && raw.length > 0) {
+                return quiz;
+            }
+            const fallback = getDefaultQuestionsForTitle(quiz.title);
+            const nextQuestions = fallback || valid;
+            return { ...quiz, questions: nextQuestions };
+        }
+
+        const sampleQuizzes = [
+            {
+                id: 1,
+                title: 'Basic Algebra',
+                category: 'Mathematics',
+                difficulty: 'Easy',
+                description: 'Test your basic algebra skills',
+                questions: [
+                    { question: 'Solve: 2x + 5 = 13', options: ['3', '4', '5', '6'], correct: 1 },
+                    { question: 'Simplify: 3(x + 4) - 2x', options: ['x + 12', 'x + 4', '5x + 12', 'x - 12'], correct: 0 },
+                    { question: 'If y = 3x - 2, what is y when x = 5?', options: ['13', '10', '8', '5'], correct: 0 },
+                    { question: 'Solve: 4x - 7 = 2x + 9', options: ['8', '6', '10', '7'], correct: 0 },
+                    { question: 'Slope of y = 2x + 3?', options: ['2', '3', '-2', '1/2'], correct: 0 }
+                ],
+                timeLimit: 15,
+                taken: 127,
+                rating: 4.5,
+                avgScore: 85
+            },
+            {
+                id: 2,
+                title: 'Physics Fundamentals',
+                category: 'Science',
+                difficulty: 'Medium',
+                description: 'Explore the laws of motion and forces',
+                questions: [
+                    { question: 'SI unit of force?', options: ['Newton', 'Joule', 'Watt', 'Pascal'], correct: 0 },
+                    { question: 'Newton’s first law is also called?', options: ['Inertia', 'Acceleration', 'Action-Reaction', 'Momentum'], correct: 0 },
+                    { question: 'Which is a vector quantity?', options: ['Speed', 'Mass', 'Velocity', 'Time'], correct: 2 },
+                    { question: 'Acceleration due to gravity on Earth?', options: ['9.8 m/s^2', '10 m/s^2', '9.8 km/h^2', '1.6 m/s^2'], correct: 0 },
+                    { question: 'Momentum of 5 kg at 2 m/s?', options: ['10 kg·m/s', '2.5', '7', '0.4'], correct: 0 }
+                ],
+                timeLimit: 20,
+                taken: 89,
+                rating: 4.7,
+                avgScore: 78
+            },
+            {
+                id: 3,
+                title: 'World History',
+                category: 'History',
+                difficulty: 'Hard',
+                description: 'Major events of the 20th century',
+                questions: [
+                    { question: 'Year World War I started?', options: ['1914', '1918', '1939', '1945'], correct: 0 },
+                    { question: 'Which treaty ended World War I?', options: ['Versailles', 'Paris', 'London', 'Rome'], correct: 0 },
+                    { question: 'Leader of Nazi Germany?', options: ['Hitler', 'Mussolini', 'Stalin', 'Churchill'], correct: 0 },
+                    { question: 'Year of the Moon landing?', options: ['1969', '1965', '1972', '1958'], correct: 0 },
+                    { question: 'Cold War symbol?', options: ['Berlin Wall', 'Iron Curtain', 'NATO', 'All'], correct: 3 }
+                ],
+                timeLimit: 25,
+                taken: 156,
+                rating: 4.8,
+                avgScore: 92
+            },
+            {
+                id: 4,
+                title: 'Country Capitals',
+                category: 'Geography',
+                difficulty: 'Easy',
+                description: 'Know your world capitals',
+                questions: [
+                    { question: 'Capital of France?', options: ['Paris', 'London', 'Berlin', 'Madrid'], correct: 0 },
+                    { question: 'Capital of Japan?', options: ['Tokyo', 'Seoul', 'Beijing', 'Bangkok'], correct: 0 },
+                    { question: 'Capital of Australia?', options: ['Canberra', 'Sydney', 'Melbourne', 'Perth'], correct: 0 },
+                    { question: 'Capital of Egypt?', options: ['Cairo', 'Alexandria', 'Giza', 'Luxor'], correct: 0 },
+                    { question: 'Capital of Canada?', options: ['Ottawa', 'Toronto', 'Vancouver', 'Montreal'], correct: 0 }
+                ],
+                timeLimit: 10,
+                taken: 203,
+                rating: 4.6,
+                avgScore: 88
+            }
+        ];
+
+        function mergeQuizzes(defaults, stored) {
+            const byKey = new Map();
+            defaults.forEach(q => {
+                const key = String(q.id || q.title || '').toLowerCase();
+                if (key) byKey.set(key, q);
+            });
+            stored.forEach(q => {
+                const key = String(q.id || q.title || '').toLowerCase();
+                if (key) byKey.set(key, q);
+            });
+            return Array.from(byKey.values());
+        }
+
+        function loadQuizzes() {
+            const stored = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+            const defaultList = sampleQuizzes.map(q => ({ ...q, isUserCreated: false, createdBy: q.createdBy || 'system' }));
+            const merged = mergeQuizzes(defaultList, Array.isArray(stored) ? stored : []);
+            const sanitized = merged.map(sanitizeQuizQuestions);
+            if (JSON.stringify(sanitized) !== JSON.stringify(merged)) {
+                localStorage.setItem('smartquiz_quizzes', JSON.stringify(sanitized));
+            } else if (JSON.stringify(merged) !== JSON.stringify(stored)) {
+                localStorage.setItem('smartquiz_quizzes', JSON.stringify(merged));
+            }
+            return sanitized;
+        }
+
+        function renderQuizzes() {
+            const quizzes = loadQuizzes();
+            const grid = document.getElementById('quizzesGrid');
+
+            if (quizzes.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#666;">No quizzes yet. Click "Create New Quiz" to start.</div>';
+                return;
+            }
+
+            let html = '';
+            quizzes.forEach(quiz => {
+                const attempts = quiz.taken || 0;
+                const avgScore = quiz.avgScore || 0;
+                const rating = quiz.rating || 0;
+                const questionsCount = quiz.questions ? quiz.questions.length : 0;
+                const time = quiz.timeLimit || 15;
+
+                html += `
+                    <div class="quiz-card">
+                        <div class="quiz-card-header">
+                            <div class="quiz-title">${quiz.title}</div>
+                            <div class="quiz-category">${quiz.category || 'General'}</div>
+                        </div>
+                        <div class="quiz-card-body">
+                            <div class="student-stats">
+                                <div class="stat-row">
+                                    <span><i class="fas fa-users"></i> Attempts:</span>
+                                    <strong>${attempts}</strong>
+                                </div>
+                                <div class="stat-row">
+                                    <span><i class="fas fa-chart-line"></i> Avg Score:</span>
+                                    <strong style="color: #10b981;">${avgScore}%</strong>
+                                </div>
+                                <div class="stat-row">
+                                    <span><i class="fas fa-star"></i> Rating:</span>
+                                    <strong>${rating}/5</strong>
+                                </div>
+                            </div>
+                            <div class="quiz-stat">
+                                <label>Questions:</label>
+                                <value>${questionsCount}</value>
+                            </div>
+                            <div class="quiz-stat">
+                                <label>Duration:</label>
+                                <value>${time} mins</value>
+                            </div>
+                            <div class="quiz-stat">
+                                <label>Status:</label>
+                                <value style="color: #10b981;">Published</value>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="action-btn" onclick="editQuiz(${quiz.id})"><i class="fas fa-edit"></i> Edit</button>
+                                <button class="action-btn" onclick="showAnalytics(${quiz.id})"><i class="fas fa-chart-bar"></i> Analytics</button>
+                                <button class="action-btn delete" onclick="deleteQuiz(${quiz.id})"><i class="fas fa-trash"></i> Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        window.editQuiz = function(quizId) {
+            const quizzes = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+            const quiz = quizzes.find(q => String(q.id) === String(quizId));
+            if (quiz) {
+                sessionStorage.setItem('smartquiz_edit_quiz', JSON.stringify(quiz));
+                window.name = JSON.stringify({ smartquiz_edit_quiz: quiz });
+                sessionStorage.setItem('smartquiz_edit_mode', '1');
+                sessionStorage.setItem('smartquiz_return_to', 'manage-quizzes.html');
+                localStorage.setItem('smartquiz_last_quiz_id', String(quiz.id));
+            }
+            window.location.href = `create-quiz.html?edit=${encodeURIComponent(quizId)}&source=dashboard`;
+        };
+
+        window.showAnalytics = function(quizId) {
+            const quizzes = loadQuizzes();
+            const quiz = quizzes.find(q => q.id === quizId);
+            if (!quiz) return;
+
+            const attempts = quiz.taken || 0;
+            const avgScore = quiz.avgScore || 0;
+            const rating = quiz.rating || 0;
+            const questionsCount = quiz.questions ? quiz.questions.length : 0;
+
+            const content = `
+                <p><strong>${quiz.title}</strong> (${quiz.category || 'General'})</p>
+                <hr>
+                <p><i class="fas fa-users"></i> Total Attempts: ${attempts}</p>
+                <p><i class="fas fa-chart-line"></i> Average Score: ${avgScore}%</p>
+                <p><i class="fas fa-star"></i> Rating: ${rating}/5</p>
+                <p><i class="fas fa-question-circle"></i> Questions: ${questionsCount}</p>
+                <p><i class="fas fa-clock"></i> Time Limit: ${quiz.timeLimit || 15} mins</p>
+            `;
+            document.getElementById('analyticsContent').innerHTML = content;
+            document.getElementById('analyticsModal').style.display = 'flex';
+        };
+
+        window.closeModal = function() {
+            document.getElementById('analyticsModal').style.display = 'none';
+        };
+
+        window.deleteQuiz = function(quizId) {
+            if (!confirm('Are you sure you want to delete this quiz? This cannot be undone.')) return;
+
+            let quizzes = loadQuizzes();
+            quizzes = quizzes.filter(q => q.id !== quizId);
+            localStorage.setItem('smartquiz_quizzes', JSON.stringify(quizzes));
+            renderQuizzes();
+        };
+
+        window.logout = function() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        };
+
+        document.querySelectorAll(".nav-menu a").forEach(link => {
+            link.classList.remove("active");
+        });
+        const activeLink = document.getElementById("nav-manage-quizzes");
+        if (activeLink) activeLink.classList.add("active");
+
+        renderQuizzes();
+    </script>
+</body>
+</html>

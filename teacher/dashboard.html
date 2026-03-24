@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ----- ALL YOUR EXISTING STYLES (unchanged) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            color: white;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-width: 0;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card.secondary {
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+        }
+
+        .stat-card.tertiary {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .stat-card.quaternary {
+            background: linear-gradient(135deg, #9f7aea 0%, #805ad5 100%);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            line-height: 1.3;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Compact Performance Grid */
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .performance-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .performance-card h4 {
+            font-size: 0.9rem;
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .performance-metric label {
+            color: #666;
+        }
+
+        .performance-metric value {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.4rem;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+        }
+
+        /* Student Performance Table */
+        .student-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: #f3f4f6;
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr;
+            gap: 1rem;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s;
+        }
+
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .student-name {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-weight: 500;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4f46e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        img.student-avatar {
+            display: block;
+            background: none;
+            object-fit: cover;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+           
+        .action-btn:hover {
+            background: #6366f1;
+        }
+
+        .full-width-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            padding: 0.8rem 1.8rem;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+
+        .btn-primary:hover {
+            background: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .table-header,
+            .table-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="create-quiz.html"><i class="fas fa-plus-circle"></i> Create Quiz</a></li>
+                <li><a href="manage-quizzes.html"><i class="fas fa-cogs"></i> Manage Quizzes</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- This div will be replaced by JavaScript with image + fallback -->
+                <div class="profile-icon" id="profileInitials">TC</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="page-header">
+            <h1>Welcome, <span id="teacherName">Teacher</span>! 👨‍🏫</h1>
+            <p>Monitor student progress and manage your quizzes</p>
+        </div>
+
+        <!-- Key Stats -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <h3>Total Students</h3>
+                <div class="stat-value">45</div>
+                <div class="stat-label">Enrolled in your class</div>
+            </div>
+            <div class="stat-card secondary">
+                <h3>Quizzes Created</h3>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Active quizzes</div>
+            </div>
+            <div class="stat-card tertiary">
+                <h3>Avg Class Score</h3>
+                <div class="stat-value">82%</div>
+                <div class="stat-label">Overall performance</div>
+            </div>
+            <div class="stat-card quaternary">
+                <h3>Class Done</h3>
+                <div class="stat-value">78%</div>
+                <div class="stat-label">Quiz rate</div>
+            </div>
+        </div>
+
+        <!-- Topic Performance -->
+        <h2 class="section-title">Class Performance by Topic</h2>
+        <div class="performance-grid">
+            <div class="performance-card">
+                <h4>Mathematics</h4>
+                <div class="performance-metric">
+                    <label>Avg Score</label>
+                    <value>85%</value>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 85%"></div>
+                </div>
+                <div class="performance-metric">
+                    <label>Attempts</label>
+                    <value>156</value>
+                </div>
+            </div>
+            <div class="performance-card">
+                <h4>Science</h4>
+                <div class="performance-metric">
+                    <label>Avg Score</label>
+                    <value>78%</value>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 78%"></div>
+                </div>
+                <div class="performance-metric">
+                    <label>Attempts</label>
+                    <value>142</value>
+                </div>
+            </div>
+            <div class="performance-card">
+                <h4>History</h4>
+                <div class="performance-metric">
+                    <label>Avg Score</label>
+                    <value>92%</value>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 92%"></div>
+                </div>
+                <div class="performance-metric">
+                    <label>Attempts</label>
+                    <value>89</value>
+                </div>
+            </div>
+            <div class="performance-card">
+                <h4>Geography</h4>
+                <div class="performance-metric">
+                    <label>Avg Score</label>
+                    <value>88%</value>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: 88%"></div>
+                </div>
+                <div class="performance-metric">
+                    <label>Attempts</label>
+                    <value>95</value>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Performing Students (with images) -->
+        <h2 class="section-title">Top Performing Students</h2>
+        <div class="student-table">
+            <div class="table-header">
+                <div>Student Name</div>
+                <div>Score</div>
+                <div>Quizzes</div>
+                <div>Accuracy</div>
+                <div>Action</div>
+            </div>
+
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Lakshmi Majji.jpeg" alt="Lakshmi Majji" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">LM</div>
+                    <span>Lakshmi Majji</span>
+                </div>
+                <div>2,850</div>
+                <div>15</div>
+                <div><span style="color: #10b981; font-weight: 600;">92%</span></div>
+                <div><button class="action-btn" onclick="viewStudent('lakshmi')">View</button></div>
+            </div>
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Neha Reddy.jpeg" alt="Neha Reddy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">NR</div>
+                    <span>Neha Reddy</span>
+                </div>
+                <div>2,450</div>
+                <div>12</div>
+                <div><span style="color: #10b981; font-weight: 600;">88%</span></div>
+                <div><button class="action-btn" onclick="viewStudent('neha')">View</button></div>
+            </div>
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Akhil.jpeg" alt="Akhil" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">AK</div>
+                    <span>Akhil</span>
+                </div>
+                <div>2,310</div>
+                <div>11</div>
+                <div><span style="color: #f59e0b; font-weight: 600;">85%</span></div>
+                <div><button class="action-btn" onclick="viewStudent('akhil')">View</button></div>
+            </div>
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Naveen Kumar.jpeg" alt="Naveen Kumar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">NK</div>
+                    <span>Naveen Kumar</span>
+                </div>
+                <div>2,180</div>
+                <div>10</div>
+                <div><span style="color: #f59e0b; font-weight: 600;">82%</span></div>
+                <div><button class="action-btn" onclick="viewStudent('naveen')">View</button></div>
+            </div>
+            <div class="table-row">
+                <div class="student-name">
+                    <img class="student-avatar" src="/photos/Veni Sri.jpeg" alt="Veni Sri" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar" style="display:none;">VS</div>
+                    <span>Veni Sri</span>
+                </div>
+                <div>2,050</div>
+                <div>9</div>
+                <div><span style="color: #f59e0b; font-weight: 600;">79%</span></div>
+                <div><button class="action-btn" onclick="viewStudent('veni')">View</button></div>
+            </div>
+        </div>
+
+        <!-- Class Performance Chart -->
+        <div class="full-width-section">
+            <h2 class="section-title">Weekly Class Performance Trend</h2>
+            <div class="chart-container">
+                <canvas id="classChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="create-quiz.html" class="btn-primary">
+                <i class="fas fa-plus-circle"></i> Create New Quiz
+            </a>
+            <a href="manage-quizzes.html" class="btn-primary" style="background: #10b981;">
+                <i class="fas fa-cogs"></i> Manage Quizzes
+            </a>
+            <a href="#" class="btn-primary" style="background: #f59e0b;" onclick="downloadReport(); return false;">
+                <i class="fas fa-download"></i> Download Report
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Get current user from localStorage
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Teacher' };
+
+        // If teacher has a custom photo in persistent store, load it
+        if (!currentUser.photoDataURL) {
+            const teacherProfiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            const stored = teacherProfiles[currentUser.email];
+            if (stored && stored.photoDataURL) {
+                currentUser.photoDataURL = stored.photoDataURL;
+            }
+        }
+
+        // Update navbar profile initials and name
+        document.getElementById('profileName').textContent = currentUser.name;
+
+        // Update welcome message
+        document.getElementById('teacherName').textContent = currentUser.name.split(' ')[0]; // first name only
+
+        // Helper to get teacher photo source
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            // Fallback to photos folder using PNG
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        // Replace the static profile icon with image + fallback
+        (function setupProfileIcon() {
+            const profileIconDiv = document.getElementById('profileInitials');
+            if (!profileIconDiv) return;
+            const initials = profileIconDiv.textContent;
+            const parent = profileIconDiv.parentNode; // .profile-menu
+
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = getTeacherPhotoSrc();
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any future reference
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            parent.replaceChild(wrapper, profileIconDiv);
+        })();
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+
+        // Redirect to student-details.html with the student ID
+        function viewStudent(studentId) {
+            // Store selection to avoid losing context if query string is dropped
+            localStorage.setItem('selectedStudentId', String(studentId));
+            window.location.href = `student-details.html?id=${encodeURIComponent(studentId)}`;
+        }
+
+        // DOWNLOAD REPORT FUNCTIONALITY
+        function downloadReport() {
+            const students = [
+                { name: 'Lakshmi Majji', score: 2850, quizzes: 15, accuracy: 92 },
+                { name: 'Neha Reddy', score: 2450, quizzes: 12, accuracy: 88 },
+                { name: 'Akhil', score: 2310, quizzes: 11, accuracy: 85 },
+                { name: 'Naveen Kumar', score: 2180, quizzes: 10, accuracy: 82 },
+                { name: 'Veni Sri', score: 2180, quizzes: 9, accuracy: 79 }
+            ];
+
+            let csv = 'Student Name,Total Score,Quizzes Taken,Accuracy (%)\n';
+            students.forEach(s => {
+                csv += `"${s.name}",${s.score},${s.quizzes},${s.accuracy}\n`;
+            });
+            csv += '\n';
+            csv += `Report generated on,${new Date().toLocaleString()}\n`;
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `student_report_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            alert('Report downloaded successfully!');
+        }
+
+        // Initialize chart
+        const ctx = document.getElementById('classChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5'],
+                datasets: [{
+                    label: 'Class Average Score',
+                    data: [72, 78, 85, 82, 88],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
+        });
+    </script>
+</body>
+</html>

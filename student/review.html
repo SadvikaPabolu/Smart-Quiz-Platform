@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Quiz - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f9fafc;
+            color: #1f2937;
+        }
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        .back-link:hover {
+            color: #6366f1;
+        }
+        .header-info {
+            background: white;
+            border-radius: 24px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .quiz-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.2rem;
+        }
+        .quiz-date {
+            color: #6b7280;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .score-large {
+            background: #4f46e5;
+            color: white;
+            padding: 0.6rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.3rem;
+            box-shadow: 0 5px 15px rgba(79,70,229,0.3);
+        }
+        .question-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.8rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .question-number {
+            background: #4f46e5;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+        .option {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        .option.correct {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+        .option.wrong {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+        .option-letter {
+            font-weight: 600;
+            min-width: 24px;
+            color: #4b5563;
+        }
+        .status-icon {
+            margin-left: auto;
+            font-size: 1.1rem;
+        }
+        .correct .status-icon { color: #10b981; }
+        .wrong .status-icon { color: #ef4444; }
+        .explanation {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #f3f4f6;
+            border-radius: 8px;
+            color: #4b5563;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo"><i class="fas fa-brain"></i><span>SmartQuiz</span></div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="available-quizzes.html"><i class="fas fa-question-circle"></i> Available Quizzes</a></li>
+                <li><a href="history.html"><i class="fas fa-history"></i> History</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <div class="profile-icon" id="profileInitials"></div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> <span id="profileName">My Profile</span></a>
+                    <hr>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" id="reviewContainer"></div>
+
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Student' };
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+        document.getElementById('profileName').textContent = currentUser.name;
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const attemptIdRaw = urlParams.get('id');
+
+        const attempts = JSON.parse(localStorage.getItem('student_attempts')) || [];
+        let attempt = null;
+
+        if (attemptIdRaw) {
+            attempt = attempts.find(a => String(a.id) === String(attemptIdRaw));
+        }
+
+        if (!attempt && attempts.length > 0) {
+            attempts.sort((a, b) => new Date(b.date) - new Date(a.date));
+            attempt = attempts[0];
+        }
+
+        if (!attempt) {
+            document.getElementById('reviewContainer').innerHTML = '<div style="text-align:center; padding:2rem;">No attempts available. <a href="history.html">Go back</a></div>';
+        } else {
+            renderReview(attempt);
+        }
+
+        function renderReview(attempt) {
+            const container = document.getElementById('reviewContainer');
+            const date = new Date(attempt.date).toLocaleString('en-US', {
+                year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            let questionsHtml = '';
+            attempt.questions.forEach((q, idx) => {
+                const answersArr = Array.isArray(attempt.answers) ? attempt.answers : Array.isArray(attempt.userAnswers) ? attempt.userAnswers : [];
+                const userAnsRaw = answersArr[idx];
+                const userAns = Number.isFinite(userAnsRaw) ? Number(userAnsRaw) : parseInt(userAnsRaw, 10);
+                let correctIdx = Number.isInteger(q.correct) ? q.correct : -1;
+                if (correctIdx === -1 && q.correctAnswer !== undefined) {
+                    if (Number.isInteger(q.correctAnswer)) {
+                        correctIdx = q.correctAnswer;
+                    } else if (typeof q.correctAnswer === 'string' && Array.isArray(q.options)) {
+                        const found = q.options.findIndex(o => String(o).trim() === String(q.correctAnswer).trim());
+                        if (found !== -1) correctIdx = found;
+                    }
+                }
+                if (correctIdx < 0) correctIdx = 0;
+                const isCorrect = (userAns === correctIdx);
+                const statusText = isCorrect ? 'Correct' : 'Incorrect';
+                const statusClass = isCorrect ? 'correct' : 'wrong';
+
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    let optionClass = '';
+                    let icon = '';
+                    if (optIdx === correctIdx && optIdx === userAns) {
+                        optionClass = 'correct';
+                        icon = '<span class="status-icon"><i class="fas fa-check-circle"></i></span>';
+                    } else if (optIdx === correctIdx) {
+                        optionClass = 'correct';
+                        icon = '<span class="status-icon"><i class="fas fa-check-circle"></i></span>';
+                    } else if (optIdx === userAns) {
+                        optionClass = 'wrong';
+                        icon = '<span class="status-icon"><i class="fas fa-times-circle"></i></span>';
+                    } else {
+                        optionClass = '';
+                    }
+                    const letter = String.fromCharCode(65 + optIdx);
+                    optionsHtml += `
+                        <div class="option ${optionClass}">
+                            <span class="option-letter">${letter}.</span>
+                            <span>${opt}</span>
+                            ${icon}
+                        </div>
+                    `;
+                });
+
+                const selectedText = (Number.isInteger(userAns) && q.options && q.options[userAns] !== undefined)
+                    ? q.options[userAns]
+                    : 'Not Answered';
+                const correctText = (q.options && q.options[correctIdx] !== undefined)
+                    ? q.options[correctIdx]
+                    : 'Not Available';
+
+                questionsHtml += `
+                    <div class="question-card">
+                        <div class="question-header">
+                            <span class="question-number">Question ${idx+1}</span>
+                            <span style="color: ${isCorrect ? '#10b981' : '#ef4444'}; font-weight:600;">${statusText}</span>
+                        </div>
+                        <div class="question-text">${q.question}</div>
+                        ${optionsHtml}
+                        <div class="explanation">
+                            <strong>Selected:</strong> ${selectedText}<br>
+                            <strong>Correct:</strong> ${correctText}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = `
+                <a href="history.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to History</a>
+                <div class="header-info">
+                    <div>
+                        <div class="quiz-title">${attempt.quizTitle}</div>
+                        <div class="quiz-date"><i class="fas fa-calendar-alt"></i> ${date}</div>
+                    </div>
+                    <div class="score-large">${Math.round(attempt.score)}%</div>
+                </div>
+                ${questionsHtml}
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+    </script>
+</body>
+</html>

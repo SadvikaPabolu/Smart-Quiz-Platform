@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Details - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* Navbar (same as teacher dashboard) */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-menu a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            color: #4f46e5;
+        }
+
+        .profile-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Improved image avatar rendering */
+        img.profile-icon {
+            background: none;
+            object-fit: cover;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            display: block;
+        }
+
+        .profile-dropdown a {
+            display: block;
+            padding: 0.8rem 1rem;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.3s;
+        }
+
+        .profile-dropdown a:hover {
+            background: #f3f4f6;
+        }
+
+        .profile-dropdown i {
+            margin-right: 0.5rem;
+            color: #4f46e5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        /* Back button */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        .back-link:hover {
+            color: #6366f1;
+        }
+
+        /* Student header */
+        .student-header {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .student-avatar-large {
+            width: 100px;
+            height: 100px;
+            background: #4f46e5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(79,70,229,0.2);
+        }
+
+        /* New rule for image avatar */
+        img.student-avatar-large {
+            display: block;
+            object-fit: cover;
+        }
+
+        .student-info h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        .student-info p {
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+        .student-info p i {
+            color: #4f46e5;
+            width: 20px;
+        }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 0.25rem;
+        }
+        .stat-card .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Section title */
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            margin: 2rem 0 1rem;
+        }
+
+        /* Topic performance cards */
+        .topic-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.2rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .topic-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+        .topic-score {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .topic-score .score {
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+            border-radius: 4px;
+        }
+
+        /* Attempts table */
+        .attempts-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            background: #f3f4f6;
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .table-row {
+            padding: 1rem 1.5rem;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 1rem;
+            align-items: center;
+            border-bottom: 1px solid #e5e7eb;
+            transition: background 0.3s;
+        }
+        .table-row:hover {
+            background: #f9fafb;
+        }
+
+        .score-high {
+            color: #10b981;
+            font-weight: 600;
+        }
+        .score-medium {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+        .score-low {
+            color: #ef4444;
+            font-weight: 600;
+        }
+
+        /* Chart container */
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            .student-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            .table-header {
+                display: none;
+            }
+            .table-row {
+                grid-template-columns: 1fr;
+                gap: 0.3rem;
+                padding: 1rem;
+                border: 1px solid #e5e7eb;
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-brain"></i>
+                <span>SmartQuiz</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="create-quiz.html"><i class="fas fa-plus-circle"></i> Create Quiz</a></li>
+                <li><a href="manage-quiz.html"><i class="fas fa-cogs"></i> Manage Quizzes</a></li>
+                <li><a href="student-performance.html"><i class="fas fa-chart-bar"></i> Performance</a></li>
+                <li><a href="leaderboard.html"><i class="fas fa-trophy"></i> Leaderboard</a></li>
+            </ul>
+            <div class="profile-menu">
+                <!-- Static icon will be replaced by script -->
+                <div class="profile-icon" id="profileInitials">PS</div>
+                <i class="fas fa-chevron-down"></i>
+                <div class="profile-dropdown">
+                    <a href="profile.html"><i class="fas fa-user"></i> My Profile</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" id="studentContainer">
+        <!-- Content will be injected by JavaScript -->
+        <div style="text-align: center; padding: 3rem;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #4f46e5;"></i>
+            <p>Loading student details...</p>
+        </div>
+    </div>
+
+    <script>
+        // ==================== PERSISTENT STORAGE HELPERS ====================
+        function loadTeacherProfile(email) {
+            const profiles = JSON.parse(localStorage.getItem('teacherProfiles')) || {};
+            return profiles[email] || null;
+        }
+
+        // ==================== LOAD CURRENT USER ====================
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || { name: 'Teacher' };
+
+        // Restore photo from persistent store if missing (teacher view)
+        if (!currentUser.hasOwnProperty('photoDataURL')) {
+            const storedProfile = loadTeacherProfile(currentUser.email);
+            if (storedProfile && storedProfile.photoDataURL) {
+                currentUser.photoDataURL = storedProfile.photoDataURL;
+            } else {
+                currentUser.photoDataURL = null;
+            }
+        }
+
+        // Update navbar initials (temporary, will be replaced by image)
+        document.getElementById('profileInitials').textContent = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        // Helper to get teacher photo source (PNG)
+        function getTeacherPhotoSrc() {
+            if (currentUser.photoDataURL) {
+                return currentUser.photoDataURL;
+            }
+            return `/photos/${encodeURIComponent(currentUser.name)}.png`;
+        }
+
+        // ==================== NAVBAR ICON UPDATE ====================
+        function updateNavbarIcon() {
+            const profileMenu = document.querySelector('.profile-menu');
+            if (!profileMenu) return;
+
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            const photoSrc = getTeacherPhotoSrc();
+
+            // Remove the existing profile icon (div with id profileInitials if it's still there)
+            const oldIcon = profileMenu.querySelector('.profile-icon');
+            if (oldIcon) oldIcon.remove();
+
+            // Create wrapper to hold both image and fallback
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+
+            // Create image
+            const img = document.createElement('img');
+            img.className = 'profile-icon';
+            img.src = photoSrc;
+            img.alt = 'Teacher';
+            img.onerror = function() {
+                this.style.display = 'none';
+                fallback.style.display = 'flex';
+            };
+
+            // Create fallback div (initially hidden)
+            const fallback = document.createElement('div');
+            fallback.className = 'profile-icon';
+            fallback.id = 'profileInitials'; // keep id for any references
+            fallback.textContent = initials;
+            fallback.style.display = 'none'; // hidden initially
+
+            wrapper.appendChild(img);
+            wrapper.appendChild(fallback);
+
+            // Insert the wrapper before the chevron
+            const chevron = profileMenu.querySelector('.fa-chevron-down');
+            profileMenu.insertBefore(wrapper, chevron);
+        }
+
+        // Call it immediately
+        updateNavbarIcon();
+
+        // Mock student data (in real app, fetch from backend)
+        const students = {
+            'lakshmi': {
+                name: 'Lakshmi Majji',
+                initials: 'LM',
+                email: 'lakshmi.m@gmail.com',
+                grade: '10th Grade',
+                totalScore: 2850,
+                quizzesTaken: 15,
+                avgAccuracy: 92,
+                streak: 28,
+                achievements: 18,
+                topicPerformance: [
+                    { topic: 'Mathematics', score: 94, attempts: 6 },
+                    { topic: 'Science', score: 91, attempts: 5 },
+                    { topic: 'History', score: 88, attempts: 2 },
+                    { topic: 'Geography', score: 95, attempts: 2 }
+                ],
+                recentAttempts: [
+                    { quiz: 'Algebra Basics', score: 95, date: '2026-02-26', timeSpent: '12 min' },
+                    { quiz: 'World History', score: 92, date: '2026-02-24', timeSpent: '18 min' },
+                    { quiz: 'Physics: Motion', score: 88, date: '2026-02-22', timeSpent: '15 min' }
+                ]
+            },
+            'neha': {
+                name: 'Neha Reddy',
+                initials: 'NR',
+                email: 'nehamanasa.r@gmail.com',
+                grade: '11th Grade',
+                totalScore: 2450,
+                quizzesTaken: 12,
+                avgAccuracy: 88,
+                streak: 21,
+                achievements: 15,
+                topicPerformance: [
+                    { topic: 'Mathematics', score: 91, attempts: 5 },
+                    { topic: 'Science', score: 86, attempts: 4 },
+                    { topic: 'History', score: 84, attempts: 2 },
+                    { topic: 'Geography', score: 89, attempts: 1 }
+                ],
+                recentAttempts: [
+                    { quiz: 'Algebra Basics', score: 88, date: '2026-02-25', timeSpent: '14 min' },
+                    { quiz: 'Physics: Motion', score: 85, date: '2026-02-23', timeSpent: '16 min' },
+                    { quiz: 'Country Capitals', score: 92, date: '2026-02-21', timeSpent: '9 min' }
+                ]
+            },
+            'akhil': {
+                name: 'Akhil',
+                initials: 'AK',
+                email: 'akhil.m@gmail.com',
+                grade: '10th Grade',
+                totalScore: 2310,
+                quizzesTaken: 11,
+                avgAccuracy: 85,
+                streak: 14,
+                achievements: 12,
+                topicPerformance: [
+                    { topic: 'Mathematics', score: 82, attempts: 4 },
+                    { topic: 'Science', score: 84, attempts: 3 },
+                    { topic: 'History', score: 92, attempts: 2 },
+                    { topic: 'Geography', score: 86, attempts: 2 }
+                ],
+                recentAttempts: [
+                    { quiz: 'World History', score: 92, date: '2026-02-24', timeSpent: '20 min' },
+                    { quiz: 'Biology: Human Body', score: 84, date: '2026-02-22', timeSpent: '14 min' },
+                    { quiz: 'Algebra Basics', score: 79, date: '2026-02-20', timeSpent: '13 min' }
+                ]
+            },
+            'naveen': {
+                name: 'Naveen Kumar',
+                initials: 'NK',
+                email: 'naveen.k@gmail.com',
+                grade: '9th Grade',
+                totalScore: 2180,
+                quizzesTaken: 10,
+                avgAccuracy: 82,
+                streak: 8,
+                achievements: 8,
+                topicPerformance: [
+                    { topic: 'Mathematics', score: 85, attempts: 3 },
+                    { topic: 'Science', score: 80, attempts: 3 },
+                    { topic: 'History', score: 78, attempts: 2 },
+                    { topic: 'Geography', score: 86, attempts: 2 }
+                ],
+                recentAttempts: [
+                    { quiz: 'Country Capitals', score: 86, date: '2026-02-23', timeSpent: '11 min' },
+                    { quiz: 'Algebra Basics', score: 82, date: '2026-02-21', timeSpent: '14 min' },
+                    { quiz: 'Physics: Motion', score: 77, date: '2026-02-19', timeSpent: '16 min' }
+                ]
+            },
+            'veni': {
+                name: 'Veni Sri',
+                initials: 'VS',
+                email: 'veni.s@gmail.com',
+                grade: '11th Grade',
+                totalScore: 2050,
+                quizzesTaken: 9,
+                avgAccuracy: 79,
+                streak: 5,
+                achievements: 6,
+                topicPerformance: [
+                    { topic: 'Mathematics', score: 81, attempts: 3 },
+                    { topic: 'Science', score: 76, attempts: 3 },
+                    { topic: 'History', score: 80, attempts: 2 },
+                    { topic: 'Geography', score: 77, attempts: 1 }
+                ],
+                recentAttempts: [
+                    { quiz: 'Algebra Basics', score: 79, date: '2026-02-22', timeSpent: '15 min' },
+                    { quiz: 'Physics: Motion', score: 74, date: '2026-02-20', timeSpent: '17 min' },
+                    { quiz: 'World History', score: 82, date: '2026-02-18', timeSpent: '19 min' }
+                ]
+            }
+        };
+
+        function normalizeKey(value) {
+            return String(value || '').trim().toLowerCase();
+        }
+
+        // Get student ID from URL (or fallback to stored selection)
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryId = urlParams.get('id');
+        const storedId = localStorage.getItem('selectedStudentId');
+        const studentId = normalizeKey(queryId || storedId || 'lakshmi');
+
+        // Pick student by id, or by matching name (fallback), or default
+        let student = students[studentId];
+        if (!student && queryId) {
+            const decoded = decodeURIComponent(queryId);
+            student = Object.values(students).find(s => normalizeKey(s.name) === normalizeKey(decoded));
+        }
+        if (!student) {
+            student = students.lakshmi;
+        }
+
+        function renderStudent() {
+            const container = document.getElementById('studentContainer');
+            const backUrl = document.referrer.includes('student-performance.html') ? 'student-performance.html' : 'dashboard.html';
+
+            // Build topic performance cards
+            let topicHtml = '';
+            student.topicPerformance.forEach(t => {
+                topicHtml += `
+                    <div class="topic-card">
+                        <h4>${t.topic}</h4>
+                        <div class="topic-score">
+                            <span>Average Score</span>
+                            <span class="score">${t.score}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${t.score}%;"></div>
+                        </div>
+                        <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #6b7280;">${t.attempts} attempts</div>
+                    </div>
+                `;
+            });
+
+            // Build recent attempts rows
+            let attemptsHtml = '';
+            student.recentAttempts.forEach(a => {
+                const scoreClass = a.score >= 85 ? 'score-high' : (a.score >= 70 ? 'score-medium' : 'score-low');
+                attemptsHtml += `
+                    <div class="table-row">
+                        <div>${a.quiz}</div>
+                        <div class="${scoreClass}">${a.score}%</div>
+                        <div>${a.date}</div>
+                        <div>${a.timeSpent}</div>
+                    </div>
+                `;
+            });
+
+            // Image path (using the same photos folder)
+            const imagePath = `/photos/${encodeURIComponent(student.name)}.jpeg`;
+
+            container.innerHTML = `
+                <a href="${backUrl}" class="back-link"><i class="fas fa-arrow-left"></i> Back to ${backUrl.includes('student-performance') ? 'Performance' : 'Dashboard'}</a>
+
+                <div class="student-header">
+                    <!-- Profile image with fallback initials -->
+                    <img class="student-avatar-large" src="${imagePath}" alt="${student.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="student-avatar-large" style="display:none;">${student.initials}</div>
+                    <div class="student-info">
+                        <h1>${student.name}</h1>
+                        <p><i class="fas fa-envelope"></i> ${student.email}</p>
+                        <p><i class="fas fa-graduation-cap"></i> ${student.grade}</p>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">${student.totalScore}</div>
+                        <div class="stat-label">Total Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${student.quizzesTaken}</div>
+                        <div class="stat-label">Quizzes Taken</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${student.avgAccuracy}%</div>
+                        <div class="stat-label">Average Accuracy</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${student.streak}</div>
+                        <div class="stat-label">Day Streak</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${student.achievements}</div>
+                        <div class="stat-label">Achievements</div>
+                    </div>
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-chart-pie"></i> Performance by Topic</h3>
+                <div class="topic-grid">
+                    ${topicHtml}
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-history"></i> Recent Quiz Attempts</h3>
+                <div class="attempts-table">
+                    <div class="table-header">
+                        <div>Quiz</div>
+                        <div>Score</div>
+                        <div>Date</div>
+                        <div>Time Spent</div>
+                    </div>
+                    ${attemptsHtml}
+                </div>
+
+                <h3 class="section-title"><i class="fas fa-chart-line"></i> Performance Trend (Last 7 days)</h3>
+                <div class="chart-card">
+                    <div class="chart-container">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+            `;
+
+            // Draw chart
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Score %',
+                        data: [68, 72, 85, 78, 92, 88, 82],
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = '../index.html';
+        }
+
+        renderStudent();
+    </script>
+</body>
+</html>
+

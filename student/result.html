@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Result - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(145deg, #4f46e5 0%, #7c3aed 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            padding: 3rem;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.8s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .quiz-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-wrapper {
+            display: flex;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-text .percentage {
+            font-size: 3.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .score-text .label {
+            font-size: 1rem;
+            color: #6b7280;
+            letter-spacing: 1px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin: 2.5rem 0;
+        }
+
+        .stat-item {
+            background: #f9fafb;
+            border-radius: 30px;
+            padding: 1.8rem 1rem;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+            transition: transform 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .message-box {
+            background: linear-gradient(145deg, #f5f3ff, #ede9fe);
+            border-radius: 30px;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+        }
+
+        .message-box h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-box p {
+            color: #4b5563;
+            font-size: 1.1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4f46e5, #ec4899);
+            color: white;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4f46e5;
+            border: 2px solid #4f46e5;
+        }
+
+        .btn-secondary:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .result-card {
+                padding: 2rem;
+            }
+            .quiz-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-card" id="resultCard">
+        <div class="result-header">
+            <h1>🎉 Quiz Completed! 🎉</h1>
+            <p>Here's how you performed</p>
+        </div>
+
+        <div class="quiz-title" id="quizTitle">Algebra Fundamentals</div>
+
+        <div class="chart-wrapper">
+            <div class="chart-container">
+                <canvas id="scoreChart"></canvas>
+                <div class="score-text">
+                    <span class="percentage" id="scorePercentage">85%</span>
+                    <span class="label">Score</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-value" id="correctCount">17</div>
+                <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="incorrectCount">3</div>
+                <div class="stat-label">Incorrect</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="totalQuestions">20</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+
+        <div class="message-box" id="messageBox">
+            <h3 id="messageTitle">Keep practicing!</h3>
+            <p id="messageText">Every master was once a beginner. Try again!</p>
+        </div>
+
+        <div class="action-buttons">
+            <a href="dashboard.html" class="btn btn-primary"><i class="fas fa-home"></i> Go to Dashboard</a>
+            <a href="available-quizzes.html" class="btn btn-secondary"><i class="fas fa-list"></i> More Quizzes</a>
+        </div>
+    </div>
+
+    <script>
+        // Get parameters from URL (fallback to stored last result)
+        const urlParams = new URLSearchParams(window.location.search);
+        let score = parseFloat(urlParams.get('score'));
+        let correct = parseInt(urlParams.get('correct'));
+        let total = parseInt(urlParams.get('total'));
+        let title = urlParams.get('title');
+
+        if (!Number.isFinite(score) || !Number.isFinite(correct) || !Number.isFinite(total)) {
+            try {
+                const stored = JSON.parse(localStorage.getItem('last_quiz_result') || 'null');
+                if (stored) {
+                    score = stored.score;
+                    correct = stored.correct;
+                    total = stored.total;
+                    title = stored.title;
+                }
+            } catch (e) {
+                // ignore parse errors
+            }
+        }
+
+        if (!Number.isFinite(total) || total <= 0) total = 1;
+        if (!Number.isFinite(correct) || correct < 0) correct = 0;
+        if (!Number.isFinite(score)) {
+            score = (correct / total) * 100;
+        }
+        if (!title) title = 'Quiz';
+        const incorrect = Math.max(0, total - correct);
+
+        // Display quiz title
+        document.getElementById('quizTitle').textContent = decodeURIComponent(title);
+        document.getElementById('scorePercentage').textContent = Math.round(score) + '%';
+        document.getElementById('correctCount').textContent = correct;
+        document.getElementById('incorrectCount').textContent = incorrect;
+        document.getElementById('totalQuestions').textContent = total;
+
+        // Set message based on score
+        const messageTitle = document.getElementById('messageTitle');
+        const messageText = document.getElementById('messageText');
+        if (score >= 90) {
+            messageTitle.textContent = '🏆 Excellent!';
+            messageText.textContent = 'You are a genius! Keep up the great work.';
+        } else if (score >= 75) {
+            messageTitle.textContent = '🌟 Great job!';
+            messageText.textContent = 'You did really well. Practice a bit more to master it.';
+        } else if (score >= 50) {
+            messageTitle.textContent = '📚 Good effort!';
+            messageText.textContent = 'You\'re on the right track. Keep learning!';
+        } else {
+            messageTitle.textContent = '💪 Keep practicing!';
+            messageText.textContent = 'Every master was once a beginner. Try again!';
+        }
+
+        // Create gradient for chart
+        const ctx = document.getElementById('scoreChart').getContext('2d');
+        const gradientCorrect = ctx.createLinearGradient(0, 0, 0, 280);
+        gradientCorrect.addColorStop(0, '#4f46e5');
+        gradientCorrect.addColorStop(1, '#ec4899');
+
+        const gradientIncorrect = ctx.createLinearGradient(0, 0, 0, 280);
+        gradientIncorrect.addColorStop(0, '#e5e7eb');
+        gradientIncorrect.addColorStop(1, '#d1d5db');
+
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Correct', 'Incorrect'],
+                datasets: [{
+                    data: [correct, incorrect],
+                    backgroundColor: [gradientCorrect, gradientIncorrect],
+                    borderWidth: 0,
+                    borderRadius: 10,
+                    spacing: 5,
+                    cutout: '75%',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true
+                }
+            }
+        });
+
+        // Trigger confetti celebration
+        function launchConfetti() {
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4f46e5', '#ec4899', '#fbbf24', '#10b981']
+            });
+            setTimeout(() => {
+                confetti({
+                    particleCount: 50,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#4f46e5', '#ec4899']
+                });
+                confetti({
+                    particleCount: 50,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#fbbf24', '#10b981']
+                });
+            }, 250);
+        }
+
+        window.addEventListener('load', launchConfetti);
+    </script>
+</body>
+</html>

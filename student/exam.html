@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Exam - SmartQuiz</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* (your existing exam styles – unchanged) */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f3f4f6;
+        }
+        .exam-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .exam-title h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        .exam-timer {
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .timer-danger {
+            color: #ff6b6b;
+        }
+        .exam-container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        .progress-bar {
+            background: #e5e7eb;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .question-number {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+        .question-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+        .concept-tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        .concept-tag {
+            background: #f0f4ff;
+            color: #4f46e5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid #4f46e5;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .option {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .option:hover {
+            border-color: #4f46e5;
+            background: #f8f9ff;
+        }
+        .option.selected {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
+        }
+        .option.correct-preview {
+            border-color: #10b981;
+            background: #f0fdf4;
+            color: #065f46;
+        }
+        .option-radio {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .option.selected .option-radio {
+            border-color: white;
+            background: white;
+        }
+        .option.selected .option-radio::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #4f46e5;
+            border-radius: 50%;
+        }
+        .question-nav {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        .question-nav-item {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            background: white;
+        }
+        .question-nav-item:hover {
+            border-color: #4f46e5;
+            color: #4f46e5;
+        }
+        .question-nav-item.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        .question-nav-item.answered {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            justify-content: space-between;
+        }
+        .btn-prev, .btn-next, .btn-submit {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-prev {
+            background: #e5e7eb;
+            color: #1f2937;
+        }
+        .btn-prev:hover {
+            background: #d1d5db;
+        }
+        .btn-next {
+            background: #4f46e5;
+            color: white;
+            margin-left: auto;
+        }
+        .btn-next:hover {
+            background: #6366f1;
+        }
+        .btn-submit {
+            background: #10b981;
+            color: white;
+            width: 100%;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+        .btn-submit:hover {
+            background: #059669;
+        }
+        .exam-summary {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1.5rem;
+        }
+        .summary-card {
+            text-align: center;
+        }
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        .summary-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        .correct-badge {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-left: auto;
+        }
+        @media (max-width: 768px) {
+            .exam-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            .question-card {
+                padding: 1.5rem;
+            }
+            .question-text {
+                font-size: 1.1rem;
+            }
+            .action-buttons {
+                flex-direction: column;
+            }
+            .btn-next {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="exam-header">
+        <div class="exam-title">
+            <h2 id="quizTitle">Loading...</h2>
+        </div>
+        <div class="exam-timer">
+            <i class="fas fa-clock"></i>
+            <span id="timeLeft">00:00</span>
+        </div>
+    </div>
+
+    <div class="exam-container">
+        <div class="exam-summary">
+            <div class="summary-card">
+                <div class="summary-value" id="currentQ">1</div>
+                <div class="summary-label">Current</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="totalQ">10</div>
+                <div class="summary-label">Total</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="answeredCount">0</div>
+                <div class="summary-label">Answered</div>
+            </div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="questionsContainer"></div>
+
+        <div class="question-nav" id="questionButtonsContainer"></div>
+
+        <div class="action-buttons">
+            <button class="btn-prev" id="prevBtn" onclick="previousQuestion()"><i class="fas fa-arrow-left"></i> Previous</button>
+            <button class="btn-next" id="nextBtn" onclick="nextQuestion()">Next <i class="fas fa-arrow-right"></i></button>
+        </div>
+
+        <button class="btn-submit" id="submitBtn" onclick="submitQuiz()" style="display: none;"><i class="fas fa-check"></i> Finish</button>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- Helper functions for streak ----------
+            function getTodayString() {
+                const d = new Date();
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            // Update user streak based on lastQuizDate, and save to both currentUser and master users list.
+            // Returns new streak if increased, otherwise null.
+            function updateUserStreak() {
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (!currentUser) {
+                    console.warn('No logged-in user found');
+                    return null;
+                }
+
+                const today = getTodayString();
+                const lastDate = currentUser.lastQuizDate || null;
+                let newStreak = currentUser.streak || 0;
+                let increased = false;
+
+                if (!lastDate) {
+                    // First quiz ever
+                    newStreak = 1;
+                    increased = true;
+                } else {
+                    const last = new Date(lastDate);
+                    const current = new Date(today);
+                    const diffTime = current - last;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+                    if (diffDays >= 1 && diffDays < 2) {
+                        // Consecutive day
+                        newStreak += 1;
+                        increased = true;
+                    } else if (diffDays >= 2) {
+                        // Missed day(s) – reset to 1
+                        newStreak = 1;
+                        increased = true;
+                    }
+                    // else same day: no change
+                }
+
+                // Update currentUser
+                currentUser.streak = newStreak;
+                currentUser.lastQuizDate = today;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                // Also update master users list
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(u => u.email === currentUser.email);
+                if (userIndex !== -1) {
+                    users[userIndex].streak = newStreak;
+                    users[userIndex].lastQuizDate = today;
+                    localStorage.setItem('users', JSON.stringify(users));
+                } else {
+                    // If not found (shouldn't happen), add it
+                    users.push(currentUser);
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+
+                return increased ? newStreak : null;
+            }
+
+            // ---------- Exam logic ----------
+            const urlParams = new URLSearchParams(window.location.search);
+            let quizId = urlParams.get('id');
+            const source = urlParams.get('source') || 'available'; // default to available
+
+            // Load quizzes from localStorage
+            const quizzes = JSON.parse(localStorage.getItem('smartquiz_quizzes')) || [];
+
+            if (!quizId) {
+                const lastId = localStorage.getItem('smartquiz_last_quiz_id');
+                if (lastId) quizId = lastId;
+            }
+            let quiz = quizzes.find(q => String(q.id) === String(quizId));
+
+            // Fallback: load from sessionStorage if localStorage was lost
+            if (!quiz) {
+                try {
+                    const cached = JSON.parse(sessionStorage.getItem('smartquiz_last_quiz') || 'null');
+                    if (cached && String(cached.id) === String(quizId)) {
+                        quiz = cached;
+                    }
+                } catch (e) {
+                    // ignore parse errors
+                }
+            }
+            // Fallback: load from window.name (survives origin change)
+            if (!quiz) {
+                try {
+                    const named = JSON.parse(window.name || 'null');
+                    const cached = named && named.smartquiz_last_quiz ? named.smartquiz_last_quiz : null;
+                    if (cached && String(cached.id) === String(quizId)) {
+                        quiz = cached;
+                    }
+                } catch (e) {
+                    // ignore parse errors
+                }
+            }
+
+            if (!quiz && quizzes.length > 0) {
+                quiz = quizzes[0];
+                quizId = quiz.id;
+            }
+
+            if (!quiz) {
+                alert('Quiz not found!');
+                if (source === 'manage') {
+                    window.location.href = 'manage-quizzes.html';
+                } else {
+                    window.location.href = 'available-quizzes.html';
+                }
+                return;
+            }
+
+            // Teacher preview = source=manage
+            const isTeacherPreview = (source === 'manage');
+            // Preview mode (practice) = source=preview
+            const isPreviewMode = (source === 'preview');
+
+            function buildFallbackQuestions(title) {
+                return [
+                    {
+                        question: `Intro to ${title}: What is the best answer?`,
+                        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                        correct: 0
+                    },
+                    {
+                        question: `Basics of ${title}: Choose the correct option.`,
+                        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                        correct: 1
+                    },
+                    {
+                        question: `${title} practice: Pick one.`,
+                        options: ['Option A', 'Option B', 'Option C', 'Option D'],
+                        correct: 2
+                    }
+                ];
+            }
+
+            function normalizeQuestions(raw) {
+                const list = Array.isArray(raw) ? raw : [];
+                return list.map(q => {
+                    const options = Array.isArray(q.options) && q.options.length > 0
+                        ? q.options
+                        : ['Option A', 'Option B', 'Option C', 'Option D'];
+                    let correctIndex = Number.isInteger(q.correct) && q.correct >= 0 && q.correct < options.length
+                        ? q.correct
+                        : -1;
+                    if (correctIndex === -1 && q.correctAnswer !== undefined) {
+                        if (Number.isInteger(q.correctAnswer)) {
+                            correctIndex = q.correctAnswer;
+                        } else if (typeof q.correctAnswer === 'string') {
+                            const found = options.findIndex(o => String(o).trim() === String(q.correctAnswer).trim());
+                            if (found !== -1) correctIndex = found;
+                        }
+                    }
+                    if (correctIndex < 0 || correctIndex >= options.length) correctIndex = 0;
+                    return {
+                        question: q.question || 'Untitled question',
+                        options,
+                        correct: correctIndex
+                    };
+                });
+            }
+
+            let questions = normalizeQuestions(quiz.questions);
+            if (questions.length === 0) {
+                questions = buildFallbackQuestions(quiz.title || 'Quiz');
+            }
+
+            // Set quiz title
+            document.getElementById('quizTitle').textContent = quiz.title;
+            document.getElementById('totalQ').textContent = questions.length;
+
+            // Timer setup
+            let timeLeft = quiz.timeLimit * 60;
+            const timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (!isTeacherPreview && !isPreviewMode) submitQuiz(); // auto-submit for students only
+                }
+                updateTimerDisplay(timeLeft);
+            }, 1000);
+
+            function updateTimerDisplay(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                document.getElementById('timeLeft').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                if (seconds < 60) {
+                    document.getElementById('timeLeft').classList.add('timer-danger');
+                }
+            }
+
+            // State
+            let answers = new Array(questions.length).fill(null);
+            let currentIndex = 0;
+
+            // Render the first question
+            renderQuestion(currentIndex);
+            renderNavButtons();
+
+            function renderQuestion(index) {
+                const q = questions[index];
+                const container = document.getElementById('questionsContainer');
+                let optionsHtml = '';
+                q.options.forEach((opt, i) => {
+                    const isSelected = answers[index] === i;
+                    if (isTeacherPreview) {
+                        // Preview: show correct answer highlighted
+                        const extraClass = i === q.correct ? 'correct-preview' : '';
+                        optionsHtml += `
+                            <div class="option ${extraClass}">
+                                <div class="option-radio"></div>
+                                <span>${opt}</span>
+                                ${i === q.correct ? '<span class="correct-badge"><i class="fas fa-check"></i> Correct</span>' : ''}
+                            </div>
+                        `;
+                    } else {
+                        // Student: radio buttons
+                        optionsHtml += `
+                            <div class="option ${isSelected ? 'selected' : ''}" onclick="selectAnswer(${index}, ${i})">
+                                <div class="option-radio"></div>
+                                <span>${opt}</span>
+                            </div>
+                        `;
+                    }
+                });
+
+                container.innerHTML = `
+                    <div class="question-card">
+                        <div class="question-number">Question ${index+1}</div>
+                        <div class="question-text">${q.question}</div>
+                        <div class="options">${optionsHtml}</div>
+                    </div>
+                `;
+
+                // Update current question number
+                document.getElementById('currentQ').textContent = index+1;
+                // Update progress bar
+                const progress = ((index+1) / questions.length) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+
+                // Update answered count
+                const answered = answers.filter(a => a !== null).length;
+                document.getElementById('answeredCount').textContent = answered;
+
+                // Enable/disable previous button
+                document.getElementById('prevBtn').disabled = index === 0;
+
+                // Show/hide next and submit buttons
+                if (index === questions.length - 1) {
+                    document.getElementById('nextBtn').style.display = 'none';
+                    document.getElementById('submitBtn').style.display = 'block';
+                } else {
+                    document.getElementById('nextBtn').style.display = 'flex';
+                    document.getElementById('submitBtn').style.display = 'none';
+                }
+
+                // Update nav buttons active/answered state
+                renderNavButtons();
+            }
+
+            function renderNavButtons() {
+                const navContainer = document.getElementById('questionButtonsContainer');
+                let html = '';
+                for (let i = 0; i < questions.length; i++) {
+                    const answeredClass = answers[i] !== null ? 'answered' : '';
+                    const activeClass = i === currentIndex ? 'active' : '';
+                    html += `<div class="question-nav-item ${answeredClass} ${activeClass}" onclick="goToQuestion(${i})">${i+1}</div>`;
+                }
+                navContainer.innerHTML = html;
+            }
+
+            // Expose functions globally for onclick handlers
+            window.selectAnswer = function(index, value) {
+                if (isTeacherPreview) return;
+                answers[index] = parseInt(value);
+                renderQuestion(currentIndex);
+                renderNavButtons();
+                // Update answered count after selection
+                const answered = answers.filter(a => a !== null).length;
+                document.getElementById('answeredCount').textContent = answered;
+            };
+
+            window.goToQuestion = function(index) {
+                currentIndex = index;
+                renderQuestion(currentIndex);
+            };
+
+            window.previousQuestion = function() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    renderQuestion(currentIndex);
+                }
+            };
+
+            window.nextQuestion = function() {
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    renderQuestion(currentIndex);
+                }
+            };
+
+            window.submitQuiz = function() {
+                clearInterval(timerInterval);
+                if (isTeacherPreview) {
+                    // Teacher preview – go back to manage quizzes
+                    window.location.href = 'manage-quizzes.html';
+                    return;
+                }
+                if (isPreviewMode) {
+                    // Preview mode ? no scoring, no attempt stored
+                    window.location.href = 'available-quizzes.html';
+                    return;
+                }
+
+                                if (isPreviewMode) {
+                    // Preview mode ? no scoring, no attempt stored
+                    window.location.href = 'available-quizzes.html';
+                    return;
+                }
+
+// Student mode – check answers and go to result page
+                const unanswered = answers.findIndex(a => a === null);
+                if (unanswered !== -1) {
+                    alert(`Please answer question ${unanswered+1} before submitting.`);
+                    currentIndex = unanswered;
+                    renderQuestion(currentIndex);
+                    return;
+                }
+
+                let correct = 0;
+                answers.forEach((ans, idx) => {
+                    if (ans === questions[idx].correct) correct++;
+                });
+                const score = (correct / questions.length) * 100;
+
+                // ---------- STREAK UPDATE ----------
+                const newStreak = updateUserStreak();
+                if (newStreak) {
+                    // Set flag for dashboard toast
+                    localStorage.setItem('streakToast', JSON.stringify({
+                        date: new Date().toISOString(),
+                        streak: newStreak
+                    }));
+                }
+
+                // Set submission flag for notification
+                localStorage.setItem('submissionSuccess', 'true');
+
+                // Save attempt for history
+                const attempts = JSON.parse(localStorage.getItem('student_attempts')) || [];
+                attempts.push({
+                    id: Date.now() + Math.random(),
+                    quizId: quiz.id,
+                    quizTitle: quiz.title,
+                    date: new Date().toISOString(),
+                    answers: [...answers],
+                    correct: correct,
+                    total: questions.length,
+                    score: score,
+                    questions: questions
+                });
+                localStorage.setItem('student_attempts', JSON.stringify(attempts));
+
+                // Persist last result for robust result page loading
+                localStorage.setItem('last_quiz_result', JSON.stringify({
+                    score: score,
+                    correct: correct,
+                    total: questions.length,
+                    title: quiz.title
+                }));
+
+                // Redirect to result page
+                window.location.href = `result.html?score=${score}&correct=${correct}&total=${questions.length}&title=${encodeURIComponent(quiz.title)}`;
+            };
+        })();
+    </script>
+</body>
+</html>
